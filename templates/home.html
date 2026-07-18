@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Voyage - Your next adventure, perfected. Discover breathtaking destinations worldwide.">
+    <title>Voyage — Your Next Adventure, Perfected</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+</head>
+<body>
+
+    <!-- ===== Top Navigation ===== -->
+    <nav class="home-nav">
+        <a href="{{ url_for('home') }}" class="home-nav__brand">Voyage</a>
+        <ul class="home-nav__links">
+            <li><a href="{{ url_for('home') }}" class="active">Home</a></li>
+            <li><a href="#destinations">Destinations</a></li>
+            <li><a href="#recommendations">Recommendations</a></li>
+            <li><a href="#packages">Packages</a></li>
+            <li><a href="#community">Community</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        <div class="home-nav__actions">
+            {% if session.get('user_id') %}
+            <a href="{{ url_for('dashboard') }}" class="btn-nav-primary">Dashboard</a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="btn-nav-primary">Login</a>
+            {% endif %}
+        </div>
+        <button class="home-nav__mobile" id="mobileMenuBtn" aria-label="Menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+    </nav>
+
+    <!-- ===== Hero Section ===== -->
+    <section class="hero">
+        <div class="hero__bg">
+            <img src="{{ url_for('static', filename='images/hero_amalfi.jpg') }}" alt="Amalfi Coast panoramic view">
+            <div class="hero__overlay"></div>
+        </div>
+        <div class="hero__content">
+            <h1 class="hero__title">Your Next Adventure,<br>Perfected.</h1>
+            <p class="hero__subtitle">Your next great escape starts here. Discover breathtaking destinations and create unforgettable travel memories.</p>
+            
+            <!-- Search Bar -->
+            <div class="hero__search">
+                <div class="search-field">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input type="text" placeholder="Destination" id="searchDestination">
+                </div>
+                <div class="search-divider"></div>
+                <div class="search-field">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <select id="searchDates">
+                        <option value="" disabled selected>Dates</option>
+                        <option>Jan - Mar 2026</option>
+                        <option>Apr - Jun 2026</option>
+                        <option>Jul - Sep 2026</option>
+                        <option>Oct - Dec 2026</option>
+                    </select>
+                </div>
+                <div class="search-divider"></div>
+                <div class="search-field">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    <select id="searchBudget">
+                        <option value="" disabled selected>Budget</option>
+                        <option>$500 - $1,000</option>
+                        <option>$1,000 - $3,000</option>
+                        <option>$3,000 - $5,000</option>
+                        <option>$5,000 - $10,000</option>
+                        <option>$10,000+</option>
+                    </select>
+                </div>
+                <div class="search-divider"></div>
+                <div class="search-field">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                    <select id="searchType">
+                        <option value="" disabled selected>Travel Type</option>
+                        <option>Adventure</option>
+                        <option>Relaxation</option>
+                        <option>Cultural</option>
+                        <option>Romantic</option>
+                        <option>Family</option>
+                    </select>
+                </div>
+                <button class="search-btn" id="exploreBtn">Explore</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== Trending Destinations ===== -->
+    <section class="trending" id="destinations">
+        <div class="section-container">
+            <div class="section-header">
+                <h2 class="section-title">Trending Destinations</h2>
+                <a href="#" class="see-all-link">See all</a>
+            </div>
+            <div class="destinations-grid">
+                <div class="dest-card">
+                    <div class="dest-card__img">
+                        <img src="{{ url_for('static', filename='images/dest_venice.jpg') }}" alt="Goa">
+                    </div>
+                    <div class="dest-card__info">
+                        <h3>Goa Beaches</h3>
+                        <p class="dest-card__price">Price ₹2,500 Excursion</p>
+                    </div>
+                </div>
+                <div class="dest-card">
+                    <div class="dest-card__img">
+                        <img src="{{ url_for('static', filename='images/dest_santorini.jpg') }}" alt="Leh Ladakh">
+                    </div>
+                    <div class="dest-card__info">
+                        <h3>Leh Ladakh Valley</h3>
+                        <p class="dest-card__price">Price ₹4,500 Excursion</p>
+                    </div>
+                </div>
+                <div class="dest-card">
+                    <div class="dest-card__img">
+                        <img src="{{ url_for('static', filename='images/dest_kyoto.jpg') }}" alt="Munnar">
+                    </div>
+                    <div class="dest-card__info">
+                        <h3>Munnar Hills</h3>
+                        <p class="dest-card__price">Price ₹3,000 Excursion</p>
+                    </div>
+                </div>
+                <div class="dest-card">
+                    <div class="dest-card__img">
+                        <img src="{{ url_for('static', filename='images/dest_swiss.jpg') }}" alt="Udaipur">
+                    </div>
+                    <div class="dest-card__info">
+                        <h3>Udaipur Lakes</h3>
+                        <p class="dest-card__price">Price ₹3,500 Excursion</p>
+                    </div>
+                </div>
+                <div class="dest-card">
+                    <div class="dest-card__img">
+                        <img src="{{ url_for('static', filename='images/dest_paris.jpg') }}" alt="Taj Mahal">
+                    </div>
+                    <div class="dest-card__info">
+                        <h3>Taj Mahal, Agra</h3>
+                        <p class="dest-card__price">Price ₹1,500 Excursion</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== Popular Packages ===== -->
+    <section class="packages" id="packages">
+        <div class="section-container">
+            <div class="section-header">
+                <h2 class="section-title">Popular Packages</h2>
+                <a href="#" class="see-all-link">See all</a>
+            </div>
+            <div class="packages-grid">
+                <div class="package-card">
+                    <div class="package-card__images">
+                        <img src="{{ url_for('static', filename='images/dest_venice.jpg') }}" alt="">
+                        <img src="{{ url_for('static', filename='images/dest_santorini.jpg') }}" alt="">
+                        <img src="{{ url_for('static', filename='images/dest_kyoto.jpg') }}" alt="">
+                    </div>
+                    <div class="package-card__info">
+                        <h3>Golden Triangle (Delhi-Agra-Jaipur)</h3>
+                        <p>5 Days • 4 Nights</p>
+                        <span class="package-card__price">₹25,000</span>
+                    </div>
+                </div>
+                <div class="package-card">
+                    <div class="package-card__images">
+                        <img src="{{ url_for('static', filename='images/dest_swiss.jpg') }}" alt="">
+                        <img src="{{ url_for('static', filename='images/dest_paris.jpg') }}" alt="">
+                        <img src="{{ url_for('static', filename='images/dest_bali.jpg') }}" alt="">
+                    </div>
+                    <div class="package-card__info">
+                        <h3>Kerala Backwaters & Hills</h3>
+                        <p>7 Days • 6 Nights</p>
+                        <span class="package-card__price">₹35,000</span>
+                    </div>
+                </div>
+                <div class="package-card">
+                    <div class="package-card__images">
+                        <img src="{{ url_for('static', filename='images/dest_bali.jpg') }}" alt="">
+                        <img src="{{ url_for('static', filename='images/dest_venice.jpg') }}" alt="">
+                        <img src="{{ url_for('static', filename='images/dest_santorini.jpg') }}" alt="">
+                    </div>
+                    <div class="package-card__info">
+                        <h3>Himalayan Adventure Tour</h3>
+                        <p>6 Days • 5 Nights</p>
+                        <span class="package-card__price">₹42,000</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== Testimonials ===== -->
+    <section class="testimonials" id="community">
+        <div class="section-container">
+            <h2 class="section-title" style="text-align:center; margin-bottom:2rem;">Testimonials</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-card__stars">★★★★★</div>
+                    <p>"Voyage made planning our honeymoon effortless. The AI recommendations were spot on and we had the trip of a lifetime!"</p>
+                    <div class="testimonial-card__author">
+                        <div class="testimonial-avatar">SK</div>
+                        <div><strong>Sarah K.</strong><br><span>Honeymooner</span></div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-card__stars">★★★★★</div>
+                    <p>"The budget tracking feature saved me so much money. I traveled to 3 countries for less than I expected!"</p>
+                    <div class="testimonial-card__author">
+                        <div class="testimonial-avatar">MR</div>
+                        <div><strong>Mike R.</strong><br><span>Solo Traveler</span></div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-card__stars">★★★★☆</div>
+                    <p>"Best travel platform I've used. The community recommendations helped us discover hidden gems in Japan."</p>
+                    <div class="testimonial-card__author">
+                        <div class="testimonial-avatar">JL</div>
+                        <div><strong>Jessica L.</strong><br><span>Family Traveler</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== Footer ===== -->
+    <footer class="home-footer" id="contact">
+        <div class="section-container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3 class="footer-brand">Voyage</h3>
+                    <p>Your next adventure, perfected. Discover the world with smart travel planning powered by AI.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Platform</h4>
+                    <ul>
+                        <li><a href="#">Destinations</a></li>
+                        <li><a href="#">Packages</a></li>
+                        <li><a href="#">AI Recommendations</a></li>
+                        <li><a href="#">Trip Planner</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Features</h4>
+                    <ul>
+                        <li><a href="#">Budget Tracker</a></li>
+                        <li><a href="#">Weather Insights</a></li>
+                        <li><a href="#">Interactive Maps</a></li>
+                        <li><a href="#">Community</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Voyage. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        // Mobile menu toggle
+        const mobileBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.querySelector('.home-nav__links');
+        if (mobileBtn) {
+            mobileBtn.addEventListener('click', () => {
+                navLinks.classList.toggle('open');
+            });
+        }
+        // Scroll effect on nav
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('.home-nav');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>

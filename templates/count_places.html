@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore Kyoto - Destination details, top hotels, restaurants, and reviews.">
+    <title>Voyage — Explore Kyoto</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        /* Kyoto Header Banner */
+        .kyoto-hero {
+            position: relative;
+            height: 280px;
+            border-radius: 18px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .kyoto-hero img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.5s ease;
+        }
+        .kyoto-hero__overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 100%);
+        }
+        .kyoto-hero__content {
+            position: absolute;
+            bottom: 20px;
+            left: 24px;
+            color: white;
+            z-index: 2;
+        }
+        .kyoto-hero__content h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+
+        /* Thumbnails scroll */
+        .thumbnail-scroll {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .thumbnail-card {
+            width: 76px;
+            height: 52px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        .thumbnail-card.active {
+            border-color: #2563EB;
+            transform: scale(1.05);
+        }
+        .thumbnail-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Page Layout */
+        .kyoto-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr 300px;
+            gap: 1.5rem;
+        }
+
+        /* Column contents */
+        .kyoto-col {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .kyoto-card {
+            background: white;
+            border-radius: 14px;
+            padding: 1.25rem;
+            border: 1px solid #E2E8F0;
+        }
+        .kyoto-card h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1E293B;
+            margin-bottom: 0.75rem;
+        }
+        .kyoto-card p {
+            font-size: 0.82rem;
+            color: #64748B;
+            line-height: 1.6;
+        }
+
+        /* Weather info */
+        .weather-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .weather-day {
+            flex: 1;
+            background: #F8FAFC;
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #E2E8F0;
+        }
+        .weather-day__icon {
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+        }
+        .weather-day__temp {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #1E293B;
+        }
+
+        /* Hotels List */
+        .hotel-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #F1F5F9;
+        }
+        .hotel-item:last-child {
+            border-bottom: none;
+        }
+        .hotel-item__img {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .hotel-item__name {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #1E293B;
+        }
+        .hotel-item__rating {
+            font-size: 0.72rem;
+            color: #F59E0B;
+            margin-top: 2px;
+        }
+
+        /* Restaurants & Tourist Attractions Grid */
+        .attractions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+        .attraction-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #E2E8F0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.2s;
+        }
+        .attraction-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+        .attraction-card__img {
+            width: 100%;
+            height: 90px;
+            object-fit: cover;
+        }
+        .attraction-card__body {
+            padding: 8px 10px;
+        }
+        .attraction-card__name {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #1E293B;
+            margin-bottom: 2px;
+        }
+        .attraction-card__stars {
+            color: #F59E0B;
+            font-size: 0.72rem;
+            margin-bottom: 8px;
+        }
+        .attraction-card__footer {
+            display: flex;
+            gap: 6px;
+            padding: 8px 10px;
+            border-top: 1px solid #F1F5F9;
+            background: #F8FAFC;
+        }
+        .btn-attraction {
+            flex: 1;
+            padding: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn-attraction--primary {
+            background: #2563EB;
+            color: white;
+            border: none;
+        }
+        .btn-attraction--outline {
+            background: white;
+            color: #2563EB;
+            border: 1.5px solid #2563EB;
+        }
+
+        /* Reviews */
+        .review-item {
+            border-bottom: 1px solid #F1F5F9;
+            padding: 10px 0;
+        }
+        .review-item:last-child {
+            border-bottom: none;
+        }
+        .review-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .review-author {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .review-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #E2E8F0;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .review-time {
+            font-size: 0.72rem;
+            color: #94A3B8;
+        }
+        .review-body {
+            font-size: 0.78rem;
+            color: #64748B;
+            line-height: 1.5;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body class="dashboard-body">
+
+    <!-- ===== Sidebar ===== -->
+    <aside class="sidebar">
+        <a href="{{ url_for('home') }}" class="sidebar__brand">Voyage</a>
+        <ul class="sidebar__nav">
+            <li>
+                <a href="{{ url_for('dashboard') }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('trip_planner') }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    Trip Planner
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('count_places') }}" class="active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    Count Places
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    Meetings
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('bookings') }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Bookings
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('expenses') }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    Expenses
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                    Weather
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('map_page') }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+                    Maps
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Community
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    Settings
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- ===== Top Bar ===== -->
+    <header class="topbar">
+        <div class="topbar__icons">
+            <button class="topbar__icon-btn" aria-label="Profile">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </button>
+            <button class="topbar__icon-btn" aria-label="Notifications">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span class="badge"></span>
+            </button>
+            <button class="topbar__icon-btn" aria-label="Messages">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            </button>
+            <button class="topbar__icon-btn" aria-label="Search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </button>
+            <button class="topbar__icon-btn" aria-label="Dark Mode">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </div>
+        <div class="topbar__avatar">
+            <div class="topbar__avatar-img">{{ session.get('user_name', 'U')[0] | upper }}</div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <a href="{{ url_for('logout') }}" class="topbar__logout" title="Logout">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Logout
+        </a>
+    </header>
+
+    <!-- ===== Main Content ===== -->
+    <main class="main-content">
+        <!-- Jaipur Banner -->
+        <div class="kyoto-hero">
+            <img src="{{ url_for('static', filename='images/dest_kyoto.jpg') }}" id="largeHeroImg" alt="Jaipur City Palace">
+            <div class="kyoto-hero__overlay"></div>
+            <div class="kyoto-hero__content">
+                <h1>Jaipur</h1>
+            </div>
+        </div>
+
+        <!-- Thumbnails Horizontal Scroll -->
+        <div class="thumbnail-scroll">
+            <div class="thumbnail-card active" onclick="changeHero(this, '{{ url_for('static', filename='images/dest_kyoto.jpg') }}')">
+                <img src="{{ url_for('static', filename='images/dest_kyoto.jpg') }}" alt="Kyoto Bamboo">
+            </div>
+            <div class="thumbnail-card" onclick="changeHero(this, '{{ url_for('static', filename='images/dest_santorini.jpg') }}')">
+                <img src="{{ url_for('static', filename='images/dest_santorini.jpg') }}" alt="Kyoto Temple">
+            </div>
+            <div class="thumbnail-card" onclick="changeHero(this, '{{ url_for('static', filename='images/dest_venice.jpg') }}')">
+                <img src="{{ url_for('static', filename='images/dest_venice.jpg') }}" alt="Kyoto Garden">
+            </div>
+            <div class="thumbnail-card" onclick="changeHero(this, '{{ url_for('static', filename='images/dest_swiss.jpg') }}')">
+                <img src="{{ url_for('static', filename='images/dest_swiss.jpg') }}" alt="Kyoto Torii Gate">
+            </div>
+            <div class="thumbnail-card" onclick="changeHero(this, '{{ url_for('static', filename='images/dest_paris.jpg') }}')">
+                <img src="{{ url_for('static', filename='images/dest_paris.jpg') }}" alt="Kyoto River">
+            </div>
+            <div class="thumbnail-card" onclick="changeHero(this, '{{ url_for('static', filename='images/dest_bali.jpg') }}')">
+                <img src="{{ url_for('static', filename='images/dest_bali.jpg') }}" alt="Kyoto Street">
+            </div>
+        </div>
+
+        <!-- Three Column Grid -->
+        <div class="kyoto-grid">
+            <!-- Left Column: Description, Season, Weather, Hotels -->
+            <div class="kyoto-col">
+                <div class="kyoto-card">
+                    <h3>Description</h3>
+                    <p>Jaipur, the capital of Rajasthan, is known as the Pink City due to the dominant color scheme of its buildings. It was founded in 1727 by Maharaja Sawai Jai Singh II and is a major tourist destination in India, forming a part of the Golden Triangle.</p>
+                </div>
+
+                <div class="kyoto-card">
+                    <div style="display:flex; justify-content:space-between;">
+                        <h3 style="margin-bottom:0;">Best Season</h3>
+                        <a href="#" onclick="event.preventDefault();" style="font-size:0.75rem; color:#2563EB; font-weight:600; text-decoration:none;">See</a>
+                    </div>
+                    <p style="margin-top:6px;">The best season to visit Jaipur is from October to March when the weather is extremely pleasant and ideal for sightseeing monuments and enjoying local heritage festivals.</p>
+                </div>
+
+                <div class="kyoto-card">
+                    <h3>Weather</h3>
+                    <div class="weather-row">
+                        <div class="weather-day">
+                            <div class="weather-day__icon">☀️</div>
+                            <div class="weather-day__temp">20°C</div>
+                        </div>
+                        <div class="weather-day">
+                            <div class="weather-day__icon">⛅</div>
+                            <div class="weather-day__temp">25°C</div>
+                        </div>
+                        <div class="weather-day">
+                            <div class="weather-day__icon">☁️</div>
+                            <div class="weather-day__temp">25°C</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kyoto-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <h3 style="margin-bottom:0;">Hotels</h3>
+                        <a href="#" onclick="event.preventDefault();" style="font-size:0.75rem; color:#2563EB; font-weight:600; text-decoration:none;">See all</a>
+                    </div>
+                    <div class="hotel-item">
+                        <img src="{{ url_for('static', filename='images/dest_venice.jpg') }}" class="hotel-item__img" alt="">
+                        <div>
+                            <div class="hotel-item__name">The Rambagh Palace</div>
+                            <div class="hotel-item__rating">⭐ 4.9 Rating</div>
+                        </div>
+                    </div>
+                    <div class="hotel-item">
+                        <img src="{{ url_for('static', filename='images/dest_paris.jpg') }}" class="hotel-item__img" alt="">
+                        <div>
+                            <div class="hotel-item__name">ITC Rajputana Hotel</div>
+                            <div class="hotel-item__rating">⭐ 4.8 Rating</div>
+                        </div>
+                    </div>
+                    <div class="hotel-item">
+                        <img src="{{ url_for('static', filename='images/dest_swiss.jpg') }}" class="hotel-item__img" alt="">
+                        <div>
+                            <div class="hotel-item__name">Umaid Bhawan Resort</div>
+                            <div class="hotel-item__rating">⭐ 4.7 Rating</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle Column: Restaurants & Attractions List, Map Preview -->
+            <div class="kyoto-col">
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#1E293B; margin-bottom:0;">Restaurants</h3>
+                        <a href="#" onclick="event.preventDefault();" style="font-size:0.75rem; color:#2563EB; font-weight:600; text-decoration:none;">See all</a>
+                    </div>
+                    <div class="attractions-grid">
+                        <div class="attraction-card">
+                            <div>
+                                <img src="{{ url_for('static', filename='images/dest_kyoto.jpg') }}" class="attraction-card__img" alt="">
+                                <div class="attraction-card__body">
+                                    <div class="attraction-card__name">The Rajput Room</div>
+                                    <div class="attraction-card__stars">★★★★★</div>
+                                </div>
+                            </div>
+                            <div class="attraction-card__footer">
+                                <button class="btn-attraction btn-attraction--outline" onclick="saveItem('The Rajput Room')">Save</button>
+                                <button class="btn-attraction btn-attraction--primary" onclick="bookItem('The Rajput Room')">Book Now</button>
+                            </div>
+                        </div>
+                        <div class="attraction-card">
+                            <div>
+                                <img src="{{ url_for('static', filename='images/dest_bali.jpg') }}" class="attraction-card__img" alt="">
+                                <div class="attraction-card__body">
+                                    <div class="attraction-card__name">Chokhi Dhani</div>
+                                    <div class="attraction-card__stars">★★★★☆</div>
+                                </div>
+                            </div>
+                            <div class="attraction-card__footer">
+                                <button class="btn-attraction btn-attraction--outline" onclick="saveItem('Chokhi Dhani')">Save</button>
+                                <button class="btn-attraction btn-attraction--primary" onclick="bookItem('Chokhi Dhani')">Book Now</button>
+                            </div>
+                        </div>
+                        <div class="attraction-card">
+                            <div>
+                                <img src="{{ url_for('static', filename='images/dest_paris.jpg') }}" class="attraction-card__img" alt="">
+                                <div class="attraction-card__body">
+                                    <div class="attraction-card__name">Peacock Rooftop</div>
+                                    <div class="attraction-card__stars">★★★★★</div>
+                                </div>
+                            </div>
+                            <div class="attraction-card__footer">
+                                <button class="btn-attraction btn-attraction--outline" onclick="saveItem('Peacock Rooftop')">Save</button>
+                                <button class="btn-attraction btn-attraction--primary" onclick="bookItem('Peacock Rooftop')">Book Now</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#1E293B; margin-bottom:0;">Tourist Attractions</h3>
+                        <a href="#" onclick="event.preventDefault();" style="font-size:0.75rem; color:#2563EB; font-weight:600; text-decoration:none;">See all</a>
+                    </div>
+                    <div class="attractions-grid">
+                        <div class="attraction-card">
+                            <div>
+                                <img src="{{ url_for('static', filename='images/dest_santorini.jpg') }}" class="attraction-card__img" alt="">
+                                <div class="attraction-card__body">
+                                    <div class="attraction-card__name">Amber Palace</div>
+                                    <div class="attraction-card__stars">★★★★☆</div>
+                                </div>
+                            </div>
+                            <div class="attraction-card__footer">
+                                <button class="btn-attraction btn-attraction--outline" onclick="saveItem('Amber Palace')">Save</button>
+                                <button class="btn-attraction btn-attraction--primary" onclick="bookItem('Amber Palace')">Book Now</button>
+                            </div>
+                        </div>
+                        <div class="attraction-card">
+                            <div>
+                                <img src="{{ url_for('static', filename='images/dest_swiss.jpg') }}" class="attraction-card__img" alt="">
+                                <div class="attraction-card__body">
+                                    <div class="attraction-card__name">Hawa Mahal</div>
+                                    <div class="attraction-card__stars">★★★★★</div>
+                                </div>
+                            </div>
+                            <div class="attraction-card__footer">
+                                <button class="btn-attraction btn-attraction--outline" onclick="saveItem('Hawa Mahal')">Save</button>
+                                <button class="btn-attraction btn-attraction--primary" onclick="bookItem('Hawa Mahal')">Book Now</button>
+                            </div>
+                        </div>
+                        <div class="attraction-card">
+                            <div>
+                                <img src="{{ url_for('static', filename='images/dest_venice.jpg') }}" class="attraction-card__img" alt="">
+                                <div class="attraction-card__body">
+                                    <div class="attraction-card__name">City Palace</div>
+                                    <div class="attraction-card__stars">★★★★★</div>
+                                </div>
+                            </div>
+                            <div class="attraction-card__footer">
+                                <button class="btn-attraction btn-attraction--outline" onclick="saveItem('City Palace')">Save</button>
+                                <button class="btn-attraction btn-attraction--primary" onclick="bookItem('City Palace')">Book Now</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tourist Attractions Map Preview -->
+                <div class="kyoto-card">
+                    <h3>Tourist Attractions</h3>
+                    <div class="map-placeholder" style="height:200px;">
+                        <span style="font-size:2rem; margin-bottom:6px;">🗺️</span>
+                        <span>Jaipur Area Map</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Reviews -->
+            <div class="kyoto-col">
+                <div class="kyoto-card" style="height:100%;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <h3 style="margin-bottom:0;">Reviews</h3>
+                        <a href="#" onclick="event.preventDefault();" style="font-size:0.75rem; color:#2563EB; font-weight:600; text-decoration:none;">See all</a>
+                    </div>
+
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="review-author">
+                                <div class="review-avatar">SS</div>
+                                <strong>Saurabh Sharma</strong>
+                            </div>
+                            <span class="review-time">20m ago</span>
+                        </div>
+                        <div style="color:#F59E0B; font-size:0.72rem; margin-bottom:4px;">★★★★☆</div>
+                        <p class="review-body">Loved visiting Amber Fort! The elephant rides and historic architectures are breathtaking. Perfect guide from Voyage.</p>
+                    </div>
+
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="review-author">
+                                <div class="review-avatar">AK</div>
+                                <strong>Amit Kumar</strong>
+                            </div>
+                            <span class="review-time">20m ago</span>
+                        </div>
+                        <div style="color:#F59E0B; font-size:0.72rem; margin-bottom:4px;">★★★★★</div>
+                        <p class="review-body">Outstanding Rajasthani food at Chokhi Dhani! The traditional Dal Baati Churma is a must-try. Authentic cultural experience.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        function changeHero(element, imgSrc) {
+            // Remove active class from all thumbnails
+            document.querySelectorAll('.thumbnail-card').forEach(card => card.classList.remove('active'));
+            // Add active class to clicked thumbnail
+            element.classList.add('active');
+            // Change hero image source
+            document.getElementById('largeHeroImg').src = imgSrc;
+        }
+
+        function saveItem(name) {
+            alert(name + ' has been saved to your list!');
+        }
+
+        function bookItem(name) {
+            alert('Redirecting to booking portal for ' + name + '...');
+        }
+    </script>
+</body>
+</html>

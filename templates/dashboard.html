@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Voyage Dashboard - Manage your trips, budget, and travel plans.">
+    <title>Voyage — Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body class="dashboard-body">
+
+    <!-- ===== Sidebar ===== -->
+    <aside class="sidebar">
+        <a href="{{ url_for('home') }}" class="sidebar__brand">Voyage</a>
+        <ul class="sidebar__nav">
+            <li>
+                <a href="{{ url_for('dashboard') }}" class="active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('trip_planner') }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    Trip Planner
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('count_places') }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    Count Places
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    Meetings
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('bookings') }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Bookings
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('expenses') }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    Expenses
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                    Weather
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('map_page') }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+                    Maps
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Community
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    Settings
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- ===== Top Bar ===== -->
+    <header class="topbar">
+        <div class="topbar__icons">
+            <button class="topbar__icon-btn" aria-label="Profile">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </button>
+            <button class="topbar__icon-btn" aria-label="Notifications">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span class="badge"></span>
+            </button>
+            <button class="topbar__icon-btn" aria-label="Messages">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            </button>
+            <button class="topbar__icon-btn" aria-label="Search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </button>
+            <button class="topbar__icon-btn" aria-label="Dark Mode" id="darkModeToggle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </div>
+        <div class="topbar__avatar">
+            <div class="topbar__avatar-img">{{ session.get('user_name', 'U')[0] | upper }}</div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <a href="{{ url_for('logout') }}" class="topbar__logout" title="Logout">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Logout
+        </a>
+    </header>
+
+    <!-- ===== Main Content ===== -->
+    <main class="main-content">
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages" style="margin-bottom:1rem;">
+            {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+                <span>{{ message }}</span>
+                <button class="flash-close" aria-label="Close">&times;</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+            <div>
+                <h2>Welcome Back</h2>
+                <p>Welcome to Voyage, your ultimate travel companion. Plan, explore, and save.</p>
+            </div>
+            <a href="{{ url_for('ai_search') }}" class="btn-outline-white">Upcoming Trips</a>
+        </div>
+
+        <!-- Row 1: Trips, Weather, Budget, Stats -->
+        <div class="dash-grid">
+            <!-- Upcoming Trips -->
+            <div class="card card--trips">
+                <h3 class="card__title">Upcoming Trips</h3>
+                <div class="trip-item">
+                    <div class="trip-item__img">
+                        <img src="{{ url_for('static', filename='images/dest_paris.jpg') }}" alt="Taj Mahal">
+                    </div>
+                    <div class="trip-item__info">
+                        <h4>Taj Mahal, Agra</h4>
+                        <p>December 1, 2026</p>
+                    </div>
+                    <span class="trip-badge trip-badge--upcoming">Upcoming</span>
+                </div>
+                <div class="trip-item">
+                    <div class="trip-item__img">
+                        <img src="{{ url_for('static', filename='images/dest_kyoto.jpg') }}" alt="Munnar">
+                    </div>
+                    <div class="trip-item__info">
+                        <h4>Munnar Tea Gardens</h4>
+                        <p>December 12, 2026</p>
+                    </div>
+                    <span class="trip-badge trip-badge--complete">Complete</span>
+                </div>
+                <div class="trip-item">
+                    <div class="trip-item__img">
+                        <img src="{{ url_for('static', filename='images/dest_venice.jpg') }}" alt="Goa">
+                    </div>
+                    <div class="trip-item__info">
+                        <h4>Goa Beach Stay</h4>
+                        <p>January 5, 2027</p>
+                    </div>
+                    <span class="trip-badge trip-badge--status">Status</span>
+                </div>
+                <div class="trip-item">
+                    <div class="trip-item__img">
+                        <img src="{{ url_for('static', filename='images/dest_swiss.jpg') }}" alt="Leh">
+                    </div>
+                    <div class="trip-item__info">
+                        <h4>Leh Ladakh Trek</h4>
+                        <p>February 1, 2027</p>
+                    </div>
+                    <span class="trip-badge trip-badge--complete">Complete</span>
+                </div>
+            </div>
+
+            <!-- Weather Widget -->
+            <div class="card card--weather">
+                <h3 class="card__title" style="color:white;">Weather Widget</h3>
+                <div class="weather-top">
+                    <div class="weather-top__temp">
+                        <div class="weather-top__icon">⛅</div>
+                        <div class="weather-top__degrees">20°</div>
+                    </div>
+                    <div class="weather-top__details">
+                        <div class="label">Current today</div>
+                        <div class="value">Estian +20°</div>
+                    </div>
+                </div>
+                <div class="weather-forecast">
+                    <div class="weather-forecast__day active">
+                        <div class="day-label">Current</div>
+                        <div class="day-high">20°</div>
+                        <div class="day-low">37°</div>
+                    </div>
+                    <div class="weather-forecast__day">
+                        <div class="day-label">2 Day</div>
+                        <div class="day-high">25°</div>
+                        <div class="day-low">23°</div>
+                    </div>
+                    <div class="weather-forecast__day">
+                        <div class="day-label">5 Day</div>
+                        <div class="day-high">20°</div>
+                        <div class="day-low">25°</div>
+                    </div>
+                    <div class="weather-forecast__day">
+                        <div class="day-label">4 Day</div>
+                        <div class="day-high">25°</div>
+                        <div class="day-low">25°</div>
+                    </div>
+                    <div class="weather-forecast__day">
+                        <div class="day-label">5 Day</div>
+                        <div class="day-high">37°</div>
+                        <div class="day-low">25°</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Budget Summary -->
+            <div class="card">
+                <h3 class="card__title">Budget Summary</h3>
+                <div class="budget-row">
+                    <div class="budget-chart">
+                        <canvas id="budgetChart"></canvas>
+                    </div>
+                    <div class="budget-legend">
+                        <div class="budget-legend__item">
+                            <span class="budget-legend__dot" style="background:#2563EB;"></span>
+                            Plan ₹1,800
+                        </div>
+                        <div class="budget-legend__item">
+                            <span class="budget-legend__dot" style="background:#60A5FA;"></span>
+                            Trips ₹1,12,000
+                        </div>
+                        <div class="budget-legend__amount">Becoming Budget</div>
+                        <div style="font-size:1.2rem; font-weight:700; color:#1E293B;">₹1,90,000</div>
+                        <div class="budget-legend__sub">Total Expenses ₹1,13,800.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Travel Stats -->
+            <div class="card">
+                <h3 class="card__title">Travel Stats</h3>
+                <div class="stats-chart">
+                    <canvas id="statsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Recommended Destinations + Map -->
+        <div class="dash-grid--2col" style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; margin-bottom:1.5rem;">
+            <div>
+                <div class="section-header-dash">
+                    <h3>Recommended Destinations</h3>
+                    <a href="{{ url_for('ai_search') }}" class="see-all-link">See all</a>
+                </div>
+                <div class="dest-scroll">
+                    <div class="rec-card">
+                        <div class="rec-card__img">
+                            <img src="{{ url_for('static', filename='images/dest_venice.jpg') }}" alt="Taj Mahal">
+                        </div>
+                        <div class="rec-card__info">
+                            <h4>Taj Mahal (Agra)</h4>
+                            <div class="rec-card__stars">★★★★★ 25 reviews</div>
+                            <div class="rec-card__meta">4.9 Rating</div>
+                        </div>
+                    </div>
+                    <div class="rec-card">
+                        <div class="rec-card__img">
+                            <img src="{{ url_for('static', filename='images/dest_santorini.jpg') }}" alt="Backwaters">
+                        </div>
+                        <div class="rec-card__info">
+                            <h4>Backwaters (Alleppey)</h4>
+                            <div class="rec-card__stars">★★★★☆ 19 reviews</div>
+                            <div class="rec-card__meta">4.8 Rating</div>
+                        </div>
+                    </div>
+                    <div class="rec-card">
+                        <div class="rec-card__img">
+                            <img src="{{ url_for('static', filename='images/dest_kyoto.jpg') }}" alt="Hampi">
+                        </div>
+                        <div class="rec-card__info">
+                            <h4>Hampi Ruins (Karnataka)</h4>
+                            <div class="rec-card__stars">★★★★★ 18 reviews</div>
+                            <div class="rec-card__meta">4.7 Rating</div>
+                        </div>
+                    </div>
+                    <div class="rec-card">
+                        <div class="rec-card__img">
+                            <img src="{{ url_for('static', filename='images/dest_bali.jpg') }}" alt="Hawa Mahal">
+                        </div>
+                        <div class="rec-card__info">
+                            <h4>Hawa Mahal (Jaipur)</h4>
+                            <div class="rec-card__stars">★★★★★ 39 reviews</div>
+                            <div class="rec-card__meta">4.6 Rating</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="section-header-dash">
+                    <h3>Interactive Map</h3>
+                </div>
+                <div class="card card--map">
+                    <div class="map-placeholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+                        <span>Google Maps</span>
+                        <span style="font-size:0.78rem;">Interactive map will be displayed here</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 3: Recently Viewed -->
+        <div style="margin-bottom:1.5rem;">
+            <div class="section-header-dash">
+                <h3>Recently Viewed</h3>
+            </div>
+            <div class="recently-grid">
+                <div class="recently-card">
+                    <div class="recently-card__img">
+                        <img src="{{ url_for('static', filename='images/dest_paris.jpg') }}" alt="Shimla">
+                    </div>
+                    <div class="recently-card__info">
+                        <h4>Shimla Hills</h4>
+                        <p>4.8 Rating</p>
+                    </div>
+                </div>
+                <div class="recently-card">
+                    <div class="recently-card__img">
+                        <img src="{{ url_for('static', filename='images/dest_swiss.jpg') }}" alt="Manali">
+                    </div>
+                    <div class="recently-card__info">
+                        <h4>Manali Snow Valley</h4>
+                        <p>4.8 Rating</p>
+                    </div>
+                </div>
+                <div class="recently-card">
+                    <div class="recently-card__img">
+                        <img src="{{ url_for('static', filename='images/dest_bali.jpg') }}" alt="Ooty">
+                    </div>
+                    <div class="recently-card__info">
+                        <h4>Ooty Lake</h4>
+                        <p>4.7 Rating</p>
+                    </div>
+                </div>
+                <div class="recently-card">
+                    <div class="recently-card__img">
+                        <img src="{{ url_for('static', filename='images/dest_santorini.jpg') }}" alt="Darjeeling">
+                    </div>
+                    <div class="recently-card__info">
+                        <h4>Darjeeling Tea Estate</h4>
+                        <p>4.9 Rating</p>
+                    </div>
+                </div>
+                <div class="recently-card">
+                    <div class="recently-card__img">
+                        <img src="{{ url_for('static', filename='images/dest_kyoto.jpg') }}" alt="Kodaikanal">
+                    </div>
+                    <div class="recently-card__info">
+                        <h4>Kodaikanal Lake</h4>
+                        <p>4.6 Rating</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        // Budget Chart (Donut)
+        const budgetCtx = document.getElementById('budgetChart');
+        if (budgetCtx) {
+            new Chart(budgetCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Plan', 'Trips'],
+                    datasets: [{
+                        data: [22, 78],
+                        backgroundColor: ['#2563EB', '#60A5FA'],
+                        borderWidth: 0,
+                        cutout: '70%'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // Travel Stats (Bar Chart)
+        const statsCtx = document.getElementById('statsChart');
+        if (statsCtx) {
+            new Chart(statsCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['2019', '2020', '2021', '2022', '2023'],
+                    datasets: [{
+                        label: 'Trips',
+                        data: [2, 1, 3, 4, 3],
+                        backgroundColor: '#2563EB',
+                        borderRadius: 6,
+                        barThickness: 18
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                font: { size: 11 },
+                                color: '#94A3B8'
+                            },
+                            grid: { color: '#F1F5F9' }
+                        },
+                        x: {
+                            ticks: {
+                                font: { size: 11 },
+                                color: '#94A3B8'
+                            },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

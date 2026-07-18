@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive Map - Explore destinations, POIs, and plan routes with Voyage.">
+    <title>Voyage — Interactive Map</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <!-- Leaflet.js CSS for real interactive map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <style>
+        .map-page-layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            height: calc(100vh - 88px);
+            gap: 1.5rem;
+        }
+        .map-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            height: 100%;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .map-card {
+            background: white;
+            border-radius: 14px;
+            padding: 1.25rem;
+            border: 1px solid #E2E8F0;
+        }
+        .map-card h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1E293B;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .map-card h3 a {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #2563EB;
+            text-decoration: none;
+        }
+        
+        /* POI Switch Group */
+        .poi-switch-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .poi-switch-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.88rem;
+            color: #475569;
+        }
+        .poi-label-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .poi-icon {
+            font-size: 1.1rem;
+        }
+
+        /* Toggle switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 38px;
+            height: 20px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: #CBD5E1;
+            transition: .3s;
+            border-radius: 20px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #2563EB;
+        }
+        input:checked + .slider:before {
+            transform: translateX(18px);
+        }
+
+        /* Search input */
+        .search-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .search-input-wrapper {
+            position: relative;
+        }
+        .search-input-wrapper input {
+            width: 100%;
+            padding: 8px 12px 8px 36px;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+        }
+        .search-input-wrapper input:focus {
+            border-color: #2563EB;
+        }
+        .search-input-wrapper svg {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            color: #94A3B8;
+        }
+        .search-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            color: #1E293B;
+            background: white;
+            outline: none;
+        }
+
+        /* Route Planner */
+        .route-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+        }
+        .route-line {
+            position: absolute;
+            left: 14px;
+            top: 24px;
+            bottom: 24px;
+            width: 2px;
+            background: #CBD5E1;
+            border-dashed: 1px;
+            z-index: 1;
+        }
+        .route-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 2;
+        }
+        .route-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .route-dot--start {
+            background: #10B981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+        }
+        .route-dot--end {
+            background: #EF4444;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+        }
+        .route-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            background: #F8FAFC;
+        }
+        .route-input:focus {
+            border-color: #2563EB;
+            background: white;
+        }
+
+        /* Map Container */
+        .map-view-container {
+            background: white;
+            border-radius: 18px;
+            border: 1px solid #E2E8F0;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        }
+        #leafletMap {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        /* Floating Google maps header */
+        .map-search-overlay {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            z-index: 10;
+            background: white;
+            padding: 8px 16px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #1E293B;
+            border: 1px solid #E2E8F0;
+        }
+        .map-search-overlay svg {
+            width: 16px;
+            height: 16px;
+            color: #2563EB;
+        }
+
+        /* Custom marker classes */
+        .custom-marker {
+            width: 32px;
+            height: 32px;
+            border-radius: 50% 50% 50% 0;
+            background: #10B981;
+            position: absolute;
+            transform: rotate(-45deg);
+            left: 50%;
+            top: 50%;
+            margin: -16px 0 0 -16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        }
+        .custom-marker span {
+            transform: rotate(45deg);
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="dashboard-body">
+
+    <!-- ===== Sidebar ===== -->
+    <aside class="sidebar">
+        <a href="{{ url_for('home') }}" class="sidebar__brand">Voyage</a>
+        <ul class="sidebar__nav">
+            <li>
+                <a href="{{ url_for('dashboard') }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('trip_planner') }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    Trip Planner
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('count_places') }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    Count Places
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    Meetings
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('bookings') }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Bookings
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('expenses') }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    Expenses
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+                    Weather
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('map_page') }}" class="active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+                    Maps
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Community
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    Settings
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- ===== Top Bar ===== -->
+    <header class="topbar">
+        <div class="topbar__icons">
+            <button class="topbar__icon-btn" aria-label="Profile">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </button>
+            <button class="topbar__icon-btn" aria-label="Notifications">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span class="badge"></span>
+            </button>
+            <button class="topbar__icon-btn" aria-label="Messages">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            </button>
+            <button class="topbar__icon-btn" aria-label="Search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </button>
+            <button class="topbar__icon-btn" aria-label="Dark Mode">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </div>
+        <div class="topbar__avatar">
+            <div class="topbar__avatar-img">{{ session.get('user_name', 'U')[0] | upper }}</div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <a href="{{ url_for('logout') }}" class="topbar__logout" title="Logout">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Logout
+        </a>
+    </header>
+
+    <!-- ===== Main Content ===== -->
+    <main class="main-content">
+        <div class="map-page-layout">
+            <!-- Sidebar Controls -->
+            <div class="map-sidebar">
+                <!-- POI Filters -->
+                <div class="map-card">
+                    <h3>POI Filters <a href="#" onclick="event.preventDefault(); toggleAllPOIs(true)">See all</a></h3>
+                    <div class="poi-switch-group">
+                        <div class="poi-switch-row">
+                            <div class="poi-label-container">
+                                <span class="poi-icon">🏨</span>
+                                <span>Hotels</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="hotelSwitch" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="poi-switch-row">
+                            <div class="poi-label-container">
+                                <span class="poi-icon">🍴</span>
+                                <span>Restaurants</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="restaurantSwitch" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="poi-switch-row">
+                            <div class="poi-label-container">
+                                <span class="poi-icon">🏛️</span>
+                                <span>Museums</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="museumSwitch" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="poi-switch-row">
+                            <div class="poi-label-container">
+                                <span class="poi-icon">🚗</span>
+                                <span>Transport</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="transportSwitch" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nearby Search -->
+                <div class="map-card search-group">
+                    <h3 style="margin-bottom:0;">Nearby Search</h3>
+                    <div class="search-input-wrapper">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                        <input type="text" placeholder="Search..." id="mapPoiSearch">
+                    </div>
+                    <select class="search-select">
+                        <option>All Areas</option>
+                        <option>South Mumbai</option>
+                        <option>Bandra</option>
+                    </select>
+                </div>
+
+                <!-- Route Planner -->
+                <div class="map-card search-group">
+                    <h3>Route Planner</h3>
+                    <div class="route-input-group">
+                        <div class="route-line"></div>
+                        <div class="route-row">
+                            <div class="route-dot route-dot--start"></div>
+                            <input type="text" class="route-input" value="Mumbai, India" id="routeStart">
+                        </div>
+                        <div class="route-row">
+                            <div class="route-dot route-dot--end"></div>
+                            <input type="text" class="route-input" value="Pune, India" id="routeEnd">
+                        </div>
+                    </div>
+                    <select class="search-select" style="margin-top:4px;">
+                        <option>Route Planner</option>
+                        <option>Fastest Route (Expressway)</option>
+                        <option>Scenic Route</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Real Leaflet Map -->
+            <div class="map-view-container">
+                <!-- Floating top search bar as requested in UI mockup -->
+                <div class="map-search-overlay">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <span>Google Maps</span>
+                </div>
+                <div id="leafletMap"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Leaflet.js script -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        // Initialize Map focusing on Mumbai, India
+        const map = L.map('leafletMap', {
+            zoomControl: false // custom placement below
+        }).setView([18.9220, 72.8347], 13);
+
+        // Add standard zoom control to bottom right (matching mockup layout)
+        L.control.zoom({
+            position: 'bottomright'
+        }).addTo(map);
+
+        // Add beautiful premium map tiles (CartoDB Positron for premium minimalist light design)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+        }).addTo(map);
+
+        // Mock POIs in Mumbai
+        const poiData = [
+            { id: 'hotel1', name: 'The Taj Mahal Palace', type: 'hotel', lat: 18.9218, lng: 72.8333, icon: '🏨', color: '#3B82F6' },
+            { id: 'hotel2', name: 'Trident Nariman Point', type: 'hotel', lat: 18.9268, lng: 72.8205, icon: '🏨', color: '#3B82F6' },
+            { id: 'rest1', name: 'Leopold Cafe', type: 'restaurant', lat: 18.9230, lng: 72.8315, icon: '🍴', color: '#10B981' },
+            { id: 'rest2', name: 'Bademiya Kebab Street', type: 'restaurant', lat: 18.9224, lng: 72.8329, icon: '🍴', color: '#10B981' },
+            { id: 'museum1', name: 'Chhatrapati Shivaji Museum', type: 'museum', lat: 18.9269, lng: 72.8327, icon: '🏛️', color: '#F59E0B' },
+            { id: 'museum2', name: 'National Gallery of Modern Art', type: 'museum', lat: 18.9279, lng: 72.8318, icon: '🏛️', color: '#F59E0B' },
+            { id: 'trans1', name: 'CST Railway Station', type: 'transport', lat: 18.9400, lng: 72.8354, icon: '🚗', color: '#6366F1' },
+            { id: 'trans2', name: 'Gateway Ferry Wharf', type: 'transport', lat: 18.9205, lng: 72.8348, icon: '🚗', color: '#6366F1' }
+        ];
+
+        // Store active layer groups
+        const markerLayers = {};
+
+        // Generate markers
+        poiData.forEach(poi => {
+            // Premium custom div icon matching mockup design
+            const markerHtml = `
+                <div class="custom-marker" style="background: ${poi.color}">
+                    <span>${poi.icon}</span>
+                </div>
+            `;
+            
+            const customIcon = L.divIcon({
+                html: markerHtml,
+                className: '',
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            });
+
+            const marker = L.marker([poi.lat, poi.lng], { icon: customIcon })
+                            .bindPopup(`<strong>${poi.name}</strong><br>${poi.type.toUpperCase()}`);
+
+            if (!markerLayers[poi.type]) {
+                markerLayers[poi.type] = L.layerGroup().addTo(map);
+            }
+            marker.addTo(markerLayers[poi.type]);
+        });
+
+        // POI Switches event listeners
+        const switches = {
+            hotel: document.getElementById('hotelSwitch'),
+            restaurant: document.getElementById('restaurantSwitch'),
+            museum: document.getElementById('museumSwitch'),
+            transport: document.getElementById('transportSwitch')
+        };
+
+        Object.keys(switches).forEach(key => {
+            switches[key].addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    map.addLayer(markerLayers[key]);
+                } else {
+                    map.removeLayer(markerLayers[key]);
+                }
+            });
+        });
+
+        function toggleAllPOIs(state) {
+            Object.keys(switches).forEach(key => {
+                switches[key].checked = state;
+                if (state) {
+                    map.addLayer(markerLayers[key]);
+                } else {
+                    map.removeLayer(markerLayers[key]);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
