@@ -78,10 +78,7 @@ def home():
 
 @app.route('/ai-search')
 def ai_search():
-    """AI Search page (requires login)."""
-    if 'user_id' not in session:
-        flash('Please log in to access AI Search.', 'error')
-        return redirect(url_for('login'))
+    """AI Search page."""
     return render_template('ai_search.html')
 
 
@@ -214,10 +211,7 @@ def forgot_password():
 
 @app.route('/dashboard')
 def dashboard():
-    """Simple dashboard page after login."""
-    if 'user_id' not in session:
-        flash('Please log in to access the dashboard.', 'error')
-        return redirect(url_for('login'))
+    """Dashboard page."""
     return render_template('dashboard.html')
 
 
@@ -232,45 +226,30 @@ def logout():
 @app.route('/trip-planner')
 def trip_planner():
     """Trip Planner page."""
-    if 'user_id' not in session:
-        flash('Please log in to access the Trip Planner.', 'error')
-        return redirect(url_for('login'))
     return render_template('trip_planner.html')
 
 
 @app.route('/map')
 def map_page():
     """Interactive Map page."""
-    if 'user_id' not in session:
-        flash('Please log in to access the Map.', 'error')
-        return redirect(url_for('login'))
     return render_template('map.html')
 
 
 @app.route('/expenses')
 def expenses():
     """Expenses page."""
-    if 'user_id' not in session:
-        flash('Please log in to access the Expenses page.', 'error')
-        return redirect(url_for('login'))
     return render_template('expenses.html')
 
 
 @app.route('/bookings')
 def bookings():
     """Bookings page."""
-    if 'user_id' not in session:
-        flash('Please log in to access Bookings.', 'error')
-        return redirect(url_for('login'))
     return render_template('bookings.html')
 
 
 @app.route('/count-places')
 def count_places():
     """Count Places / Destination Detail page."""
-    if 'user_id' not in session:
-        flash('Please log in to access Count Places.', 'error')
-        return redirect(url_for('login'))
     return render_template('count_places.html')
 
 
