@@ -7,32 +7,50 @@ import re
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-DATABASE = 'voyage.db'
+import shutil
+
+def get_db_path():
+    """Get database path compatible with Vercel serverless read-only filesystem."""
+    if os.environ.get('VERCEL') or not os.access('.', os.W_OK):
+        tmp_db = '/tmp/voyage.db'
+        if not os.path.exists(tmp_db) and os.path.exists('voyage.db'):
+            try:
+                shutil.copy('voyage.db', tmp_db)
+            except Exception:
+                pass
+        return tmp_db
+    return 'voyage.db'
 
 
 def get_db():
     """Get database connection."""
-    conn = sqlite3.connect(DATABASE)
+    conn = sqlite3.connect(get_db_path())
     conn.row_factory = sqlite3.Row
     return conn
 
 
 def init_db():
     """Initialize the database with users table."""
-    conn = get_db()
-    conn.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            full_name TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            country TEXT DEFAULT '',
-            phone TEXT DEFAULT '',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    conn.commit()
-    conn.close()
+    try:
+        conn = get_db()
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                full_name TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL,
+                country TEXT DEFAULT '',
+                phone TEXT DEFAULT '',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass
+
+# Ensure DB is initialized on startup for serverless
+init_db()
 
 
 def hash_password(password):
