@@ -5,7 +5,7 @@ import os
 import re
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+app.secret_key = os.environ.get('SECRET_KEY', 'voyage_secret_key_2026_production_v1')
 
 import shutil
 
@@ -30,7 +30,7 @@ def get_db():
 
 
 def init_db():
-    """Initialize the database with users table."""
+    """Initialize the database with users table and seed default accounts."""
     try:
         conn = get_db()
         conn.execute('''
@@ -44,6 +44,25 @@ def init_db():
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
+        
+        # Default demo accounts
+        pwd_hash = hashlib.sha256('password123'.encode()).hexdigest()
+        demo_users = [
+            ('Pranay Kumar', 'pranaykrsingh03@gmail.com', pwd_hash, 'India', '+91 9876543210'),
+            ('Voyage Traveler', 'user@voyage.com', pwd_hash, 'India', '+91 9999999999'),
+            ('Admin User', 'admin@voyage.com', pwd_hash, 'India', '+91 8888888888')
+        ]
+        for name, email, pwd, country, phone in demo_users:
+            conn.execute('''
+                INSERT OR IGNORE INTO users (full_name, email, password, country, phone)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (name, email, pwd, country, phone))
+            
+            # Update password for existing user to ensure password123 works
+            conn.execute('''
+                UPDATE users SET password = ? WHERE email = ?
+            ''', (pwd, email))
+            
         conn.commit()
         conn.close()
     except Exception:
