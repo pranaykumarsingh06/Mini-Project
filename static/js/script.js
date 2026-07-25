@@ -159,19 +159,15 @@ function setupRegisterValidation(form) {
 
 // ===== Login Form Validation =====
 function setupLoginValidation(form) {
+    const fullName = form.querySelector('#full_name');
     const email = form.querySelector('#email');
     const password = form.querySelector('#password');
 
     form.addEventListener('submit', (e) => {
         let isValid = true;
 
-        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
-            validateField(email, false, 'Please enter a valid email');
-            isValid = false;
-        }
-
-        if (password && password.value.length === 0) {
-            validateField(password, false, 'Password is required');
+        if (fullName && fullName.value.trim().length === 0 && (!email || email.value.trim().length === 0)) {
+            validateField(fullName, false, 'Please enter your name or email');
             isValid = false;
         }
 
@@ -180,7 +176,7 @@ function setupLoginValidation(form) {
         } else {
             const btn = form.querySelector('.btn-primary');
             btn.classList.add('loading');
-            btn.textContent = 'Signing In';
+            btn.textContent = 'Signing In...';
         }
     });
 }

@@ -26,8 +26,12 @@
             <li><a href="#contact">Contact</a></li>
         </ul>
         <div class="home-nav__actions">
-            {% if session.get('user_id') %}
-            <a href="{{ url_for('dashboard') }}" class="btn-nav-primary">Dashboard</a>
+            {% if session.get('user_name') %}
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="color:white; font-weight:600; font-size:0.9rem;">Hi, {{ session.get('user_name') }}</span>
+                <a href="{{ url_for('dashboard') }}" class="btn-nav-primary">Dashboard</a>
+                <a href="{{ url_for('logout') }}" style="color:#FCA5A5; text-decoration:none; font-size:0.85rem; font-weight:600;">Logout</a>
+            </div>
             {% else %}
             <a href="{{ url_for('login') }}" class="btn-nav-primary">Login</a>
             {% endif %}

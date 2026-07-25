@@ -102,6 +102,7 @@
         </div>
         <div class="topbar__avatar">
             <div class="topbar__avatar-img">{{ session.get('user_name', 'U')[0] | upper }}</div>
+            <span class="topbar__user-name">{{ session.get('user_name', 'User') }}</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <a href="{{ url_for('logout') }}" class="topbar__logout" title="Logout">

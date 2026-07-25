@@ -103,6 +103,7 @@
         </div>
         <div class="topbar__avatar">
             <div class="topbar__avatar-img">{{ session.get('user_name', 'U')[0] | upper }}</div>
+            <span class="topbar__user-name">{{ session.get('user_name', 'User') }}</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <a href="{{ url_for('logout') }}" class="topbar__logout" title="Logout">
@@ -131,7 +132,7 @@
         <!-- Welcome Banner -->
         <div class="welcome-banner">
             <div>
-                <h2>Welcome Back</h2>
+                <h2>Welcome Back, {{ session.get('user_name', 'Traveler') }}!</h2>
                 <p>Welcome to Voyage, your ultimate travel companion. Plan, explore, and save.</p>
             </div>
             <a href="{{ url_for('ai_search') }}" class="btn-outline-white">Upcoming Trips</a>

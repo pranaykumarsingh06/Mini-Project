@@ -186,6 +186,13 @@ body.dashboard-body {
     font-weight: 700;
 }
 
+.topbar__user-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #1E293B;
+    white-space: nowrap;
+}
+
 .topbar__avatar svg {
     width: 14px;
     height: 14px;
