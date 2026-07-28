@@ -1000,3 +1000,195 @@ body.dashboard-body {
         grid-template-columns: 1fr;
     }
 }
+
+/* --- Dark Mode Styles --- */
+body.dark-mode {
+    background-color: #0F172A;
+    color: #F8FAFC;
+}
+body.dark-mode .sidebar {
+    background-color: #1E293B;
+    border-right-color: #334155;
+}
+body.dark-mode .topbar {
+    background-color: #1E293B;
+    border-bottom-color: #334155;
+    color: #F8FAFC;
+}
+body.dark-mode .topbar__user-name {
+    color: #F8FAFC;
+}
+body.dark-mode .card, 
+body.dark-mode .expense-sidebar, 
+body.dark-mode .chart-card,
+body.dark-mode .kyoto-card, 
+body.dark-mode .booking-card,
+body.dark-mode .map-card,
+body.dark-mode .filter-panel,
+body.dark-mode .map-view-container {
+    background-color: #1E293B;
+    border-color: #334155;
+    color: #F8FAFC;
+}
+body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, body.dark-mode h4, body.dark-mode h5,
+body.dark-mode .card__title, body.dark-mode .category-name, body.dark-mode .trip-title {
+    color: #F8FAFC;
+}
+body.dark-mode .topbar__icon-btn {
+    background: #334155;
+    color: #F8FAFC;
+    border-color: #475569;
+}
+body.dark-mode .topbar__avatar:hover {
+    background: #334155;
+}
+
+/* --- Settings Modal Styles --- */
+.settings-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(6px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+.settings-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+.settings-modal {
+    background: white;
+    width: 90%;
+    max-width: 480px;
+    border-radius: 18px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.3s ease;
+    border: 1px solid #E2E8F0;
+}
+body.dark-mode .settings-modal {
+    background: #1E293B;
+    border-color: #334155;
+    color: #F8FAFC;
+}
+.settings-modal-overlay.active .settings-modal {
+    transform: translateY(0) scale(1);
+}
+.settings-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #E2E8F0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+body.dark-mode .settings-header {
+    border-bottom-color: #334155;
+}
+.settings-header h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1E293B;
+    margin: 0;
+}
+body.dark-mode .settings-header h3 {
+    color: #F8FAFC;
+}
+.settings-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #64748B;
+    cursor: pointer;
+    line-height: 1;
+}
+.settings-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+.settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.settings-group label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #475569;
+}
+body.dark-mode .settings-group label {
+    color: #CBD5E1;
+}
+.settings-input, .settings-select {
+    padding: 0.6rem 0.85rem;
+    border-radius: 8px;
+    border: 1.5px solid #CBD5E1;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    background: #F8FAFC;
+    color: #1E293B;
+}
+body.dark-mode .settings-input, body.dark-mode .settings-select {
+    background: #0F172A;
+    border-color: #334155;
+    color: #F8FAFC;
+}
+.settings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+.settings-footer {
+    padding: 1rem 1.5rem;
+    background: #F8FAFC;
+    border-top: 1px solid #E2E8F0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+body.dark-mode .settings-footer {
+    background: #0F172A;
+    border-top-color: #334155;
+}
+.btn-settings-cancel {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #CBD5E1;
+    background: white;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+body.dark-mode .btn-settings-cancel {
+    background: #1E293B;
+    border-color: #334155;
+    color: #CBD5E1;
+}
+.btn-settings-save {
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    border: none;
+    background: #2563EB;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-settings-save:hover {
+    background: #1D4ED8;
+}
