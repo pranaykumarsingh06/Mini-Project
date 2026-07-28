@@ -142,17 +142,21 @@
         <div class="dash-grid">
             <!-- Upcoming Trips -->
             <div class="card card--trips">
-                <h3 class="card__title">Upcoming Trips</h3>
-                <div class="trip-item">
-                    <div class="trip-item__img">
-                        <img src="{{ url_for('static', filename='images/dest_paris.jpg') }}" alt="Taj Mahal">
-                    </div>
-                    <div class="trip-item__info">
-                        <h4>Taj Mahal, Agra</h4>
-                        <p>December 1, 2026</p>
-                    </div>
-                    <span class="trip-badge trip-badge--upcoming">Upcoming</span>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                    <h3 class="card__title" style="margin-bottom:0;">Upcoming Trips</h3>
+                    <button class="btn-add-trip" id="openAddTripBtn" style="padding:5px 12px; background:#2563EB; color:white; border:none; border-radius:8px; font-weight:600; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:4px;">+ Add Trip</button>
                 </div>
+                <div id="upcomingTripsContainer">
+                    <div class="trip-item">
+                        <div class="trip-item__img">
+                            <img src="{{ url_for('static', filename='images/dest_paris.jpg') }}" alt="Taj Mahal">
+                        </div>
+                        <div class="trip-item__info">
+                            <h4>Taj Mahal, Agra</h4>
+                            <p>December 1, 2026</p>
+                        </div>
+                        <span class="trip-badge trip-badge--upcoming">Upcoming</span>
+                    </div>
                 <div class="trip-item">
                     <div class="trip-item__img">
                         <img src="{{ url_for('static', filename='images/dest_kyoto.jpg') }}" alt="Munnar">
@@ -184,6 +188,7 @@
                     <span class="trip-badge trip-badge--complete">Complete</span>
                 </div>
             </div>
+        </div>
 
             <!-- Weather Widget -->
             <div class="card card--weather">
