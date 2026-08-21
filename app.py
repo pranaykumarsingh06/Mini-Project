@@ -86,10 +86,12 @@ def init_db():
                 VALUES (?, ?, ?, ?, ?)
             ''', (name, email, pwd, country, phone))
             
-            # Update password for existing user to ensure password123 works
-            conn.execute('''
-                UPDATE users SET password = ? WHERE email = ?
-            ''', (pwd, email))
+            # Update password for existing user
+            if email == 'pranaykrsingh03@gmail.com':
+                admin_pwd_hash = hashlib.sha256('12341234'.encode()).hexdigest()
+                conn.execute('UPDATE users SET password = ? WHERE email = ?', (admin_pwd_hash, email))
+            else:
+                conn.execute('UPDATE users SET password = ? WHERE email = ?', (pwd, email))
 
         # Seed default trips if empty
         trip_count = conn.execute('SELECT COUNT(*) FROM trips').fetchone()[0]
@@ -384,9 +386,54 @@ def check_email():
 
 # ===== ADMIN PANEL ROUTES =====
 
+ADMIN_EMAIL = 'pranaykrsingh03@gmail.com'
+ADMIN_PASSWORD = '12341234'
+
+def is_admin_authenticated():
+    """Check if current session is authenticated as Admin (pranaykrsingh03@gmail.com)."""
+    return session.get('is_admin') is True and session.get('admin_email') == ADMIN_EMAIL
+
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    """Admin login page - restricts access exclusively to pranaykrsingh03@gmail.com & 12341234."""
+    if session.get('is_admin') and session.get('admin_email') == ADMIN_EMAIL:
+        return redirect(url_for('admin_panel'))
+
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+        password = request.form.get('password', '')
+
+        if email == ADMIN_EMAIL and password == ADMIN_PASSWORD:
+            session['is_admin'] = True
+            session['admin_email'] = ADMIN_EMAIL
+            session['user_id'] = 1
+            session['user_name'] = 'Pranay Kumar'
+            flash('Welcome to VOYAGE Admin Portal!', 'success')
+            return redirect(url_for('admin_panel'))
+        else:
+            flash('Access Denied: Invalid credentials. Only pranaykrsingh03@gmail.com can log into the Admin Control Panel.', 'error')
+            return render_template('admin_login.html')
+
+    return render_template('admin_login.html')
+
+
+@app.route('/admin/logout')
+def admin_logout():
+    """Log out of Admin Panel."""
+    session.pop('is_admin', None)
+    session.pop('admin_email', None)
+    flash('You have been logged out of the Admin Portal.', 'success')
+    return redirect(url_for('admin_login'))
+
+
 @app.route('/admin')
 def admin_panel():
     """Render the Admin Panel dashboard."""
+    if not is_admin_authenticated():
+        flash('Please log in with admin credentials (pranaykrsingh03@gmail.com) to access the Admin Panel.', 'error')
+        return redirect(url_for('admin_login'))
+
     conn = get_db()
     
     users = conn.execute('SELECT * FROM users ORDER BY id DESC').fetchall()
@@ -419,6 +466,10 @@ def admin_panel():
 @app.route('/admin/user/add', methods=['POST'])
 def admin_add_user():
     """Add new user from admin panel."""
+    if not is_admin_authenticated():
+        flash('Unauthorized action.', 'error')
+        return redirect(url_for('admin_login'))
+
     full_name = request.form.get('full_name', '').strip()
     email = request.form.get('email', '').strip()
     password = request.form.get('password', 'password123')
@@ -449,6 +500,10 @@ def admin_add_user():
 @app.route('/admin/user/edit/<int:user_id>', methods=['POST'])
 def admin_edit_user(user_id):
     """Edit existing user details from admin panel."""
+    if not is_admin_authenticated():
+        flash('Unauthorized action.', 'error')
+        return redirect(url_for('admin_login'))
+
     full_name = request.form.get('full_name', '').strip()
     email = request.form.get('email', '').strip()
     country = request.form.get('country', '').strip()
@@ -472,6 +527,10 @@ def admin_edit_user(user_id):
 @app.route('/admin/user/delete/<int:user_id>', methods=['POST'])
 def admin_delete_user(user_id):
     """Delete user from admin panel."""
+    if not is_admin_authenticated():
+        flash('Unauthorized action.', 'error')
+        return redirect(url_for('admin_login'))
+
     try:
         conn = get_db()
         conn.execute('DELETE FROM users WHERE id = ?', (user_id,))
@@ -487,6 +546,10 @@ def admin_delete_user(user_id):
 @app.route('/admin/trip/add', methods=['POST'])
 def admin_add_trip():
     """Add new trip from admin panel."""
+    if not is_admin_authenticated():
+        flash('Unauthorized action.', 'error')
+        return redirect(url_for('admin_login'))
+
     user_name = request.form.get('user_name', 'Traveler').strip()
     destination = request.form.get('destination', '').strip()
     budget = request.form.get('budget', 25000)
@@ -515,6 +578,10 @@ def admin_add_trip():
 @app.route('/admin/trip/delete/<int:trip_id>', methods=['POST'])
 def admin_delete_trip(trip_id):
     """Delete trip record from admin panel."""
+    if not is_admin_authenticated():
+        flash('Unauthorized action.', 'error')
+        return redirect(url_for('admin_login'))
+
     try:
         conn = get_db()
         conn.execute('DELETE FROM trips WHERE id = ?', (trip_id,))
@@ -530,6 +597,9 @@ def admin_delete_trip(trip_id):
 @app.route('/admin/api/stats')
 def admin_api_stats():
     """API endpoint returning admin dashboard stats as JSON."""
+    if not is_admin_authenticated():
+        return jsonify({'error': 'Unauthorized'}), 401
+
     conn = get_db()
     users_count = conn.execute('SELECT COUNT(*) FROM users').fetchone()[0]
     trips_count = conn.execute('SELECT COUNT(*) FROM trips').fetchone()[0]
