@@ -3,682 +3,592 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Control Panel — VOYAGE</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Admin Dashboard — VOYAGE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* Admin Specific Styling */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            background-color: #F1F5F9;
             font-family: 'Inter', sans-serif;
-            color: #0F172A;
-            margin: 0;
-            padding: 0;
+            background: #F8FAFC;
+            color: #1E293B;
+            min-height: 100vh;
         }
 
-        .admin-topbar {
-            background: #0F172A;
-            color: white;
+        /* Top Header */
+        header {
+            background: #ffffff;
+            border-bottom: 1px solid #E2E8F0;
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 50;
         }
 
-        .admin-brand {
+        .brand {
             display: flex;
             align-items: center;
-            gap: 12px;
-        }
-
-        .admin-brand h1 {
-            font-size: 1.35rem;
+            gap: 10px;
+            font-size: 1.25rem;
             font-weight: 800;
-            letter-spacing: 0.5px;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            color: #0F172A;
         }
 
-        .badge-admin {
-            background: linear-gradient(135deg, #2563EB, #1D4ED8);
-            color: white;
-            font-size: 0.72rem;
-            padding: 3px 8px;
-            border-radius: 6px;
+        .badge-tag {
+            background: #EFF6FF;
+            color: #2563EB;
+            font-size: 0.75rem;
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            padding: 4px 10px;
+            border-radius: 20px;
         }
 
-        .admin-nav-actions {
+        .header-actions {
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        .btn-admin {
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-size: 0.85rem;
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            font-size: 0.88rem;
             font-weight: 600;
-            text-decoration: none;
-            cursor: pointer;
             border: none;
+            cursor: pointer;
+            text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 6px;
             transition: all 0.2s ease;
         }
 
-        .btn-admin-primary {
-            background: #2563EB;
-            color: white;
-        }
-        .btn-admin-primary:hover {
-            background: #1D4ED8;
-        }
+        .btn-primary { background: #2563EB; color: white; }
+        .btn-primary:hover { background: #1D4ED8; }
+        .btn-light { background: #F1F5F9; color: #475569; }
+        .btn-light:hover { background: #E2E8F0; color: #0F172A; }
+        .btn-danger { background: #FEE2E2; color: #991B1B; }
+        .btn-danger:hover { background: #FCA5A5; }
 
-        .btn-admin-outline {
-            background: transparent;
-            color: #94A3B8;
-            border: 1px solid #334155;
-        }
-        .btn-admin-outline:hover {
-            background: #1E293B;
-            color: white;
-        }
-
-        .btn-admin-danger {
-            background: #EF4444;
-            color: white;
-        }
-        .btn-admin-danger:hover {
-            background: #DC2626;
-        }
-
-        .admin-container {
-            max-width: 1320px;
+        /* Container */
+        .container {
+            max-width: 1200px;
             margin: 2rem auto;
             padding: 0 1.5rem;
         }
 
-        /* KPI Metric Cards */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1.25rem;
+        /* Welcome Banner */
+        .welcome-card {
+            background: linear-gradient(135deg, #1E293B, #0F172A);
+            color: white;
+            border-radius: 20px;
+            padding: 2rem;
             margin-bottom: 2rem;
-        }
-
-        @media (max-width: 1024px) {
-            .kpi-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        @media (max-width: 640px) {
-            .kpi-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .kpi-card {
-            background: white;
-            border-radius: 14px;
-            padding: 1.35rem 1.5rem;
-            border: 1px solid #E2E8F0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
         }
 
-        .kpi-title {
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: #64748B;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .welcome-card h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
             margin-bottom: 6px;
         }
 
-        .kpi-value {
-            font-size: 1.7rem;
+        .welcome-card p {
+            color: #94A3B8;
+            font-size: 0.9rem;
+        }
+
+        /* Simple Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            header { flex-direction: column; gap: 12px; }
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid #E2E8F0;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .stat-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
             font-weight: 800;
             color: #0F172A;
         }
 
-        .kpi-sub {
-            font-size: 0.78rem;
-            color: #10B981;
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748B;
             font-weight: 600;
-            margin-top: 4px;
         }
 
-        .kpi-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
+        /* Tab Switcher */
+        .tab-bar {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #E2E8F0;
+            padding-bottom: 1px;
         }
 
-        /* Panel Sections & Tables */
-        .admin-card {
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #64748B;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            color: #2563EB;
+            border-bottom-color: #2563EB;
+        }
+
+        /* Content Card */
+        .content-card {
             background: white;
-            border-radius: 16px;
+            border-radius: 18px;
             border: 1px solid #E2E8F0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.03);
             overflow: hidden;
-            margin-bottom: 2rem;
         }
 
-        .admin-card-header {
+        .card-top {
             padding: 1.25rem 1.5rem;
+            background: #FAF5FF;
             border-bottom: 1px solid #E2E8F0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #F8FAFC;
         }
 
-        .admin-card-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #0F172A;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .table-search-box {
-            padding: 0.5rem 0.85rem;
+        .search-input {
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
             border: 1.5px solid #CBD5E1;
-            border-radius: 8px;
             font-family: inherit;
-            font-size: 0.85rem;
+            font-size: 0.88rem;
+            width: 280px;
             outline: none;
-            width: 260px;
         }
-        .table-search-box:focus {
-            border-color: #2563EB;
-        }
+        .search-input:focus { border-color: #2563EB; }
 
-        .admin-table {
+        /* User Friendly Table */
+        .simple-table {
             width: 100%;
             border-collapse: collapse;
-            text-align: left;
-            font-size: 0.88rem;
         }
 
-        .admin-table th {
-            background: #F1F5F9;
+        .simple-table th {
+            background: #F8FAFC;
             color: #475569;
+            font-size: 0.8rem;
             font-weight: 700;
-            padding: 0.85rem 1.25rem;
-            border-bottom: 1px solid #E2E8F0;
             text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid #E2E8F0;
         }
 
-        .admin-table td {
-            padding: 1rem 1.25rem;
+        .simple-table td {
+            padding: 1.1rem 1.5rem;
             border-bottom: 1px solid #F1F5F9;
-            color: #334155;
-            vertical-align: middle;
+            font-size: 0.92rem;
         }
 
-        .admin-table tbody tr:hover {
+        .simple-table tbody tr:hover {
             background: #F8FAFC;
         }
 
-        .user-avatar-sm {
-            width: 34px;
-            height: 34px;
+        .user-chip {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: #DBEAFE;
             color: #2563EB;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.85rem;
-            margin-right: 10px;
-        }
-
-        .badge-status {
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-        .badge-active { background: #DCFCE7; color: #15803D; }
-        .badge-upcoming { background: #DBEAFE; color: #1D4ED8; }
-        .badge-confirmed { background: #FEF3C7; color: #B45309; }
-
-        /* Modal Overlay */
-        .admin-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(4px);
-            z-index: 999;
             display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s ease;
-        }
-        .admin-modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .admin-modal {
-            background: white;
-            width: 90%;
-            max-width: 500px;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
-        .admin-modal-header {
-            padding: 1.25rem 1.5rem;
-            background: #0F172A;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .admin-modal-body {
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        .form-group-admin label {
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: #475569;
-            margin-bottom: 4px;
-            display: block;
-        }
-        .form-input-admin {
-            width: 100%;
-            padding: 0.65rem 0.85rem;
-            border: 1.5px solid #CBD5E1;
-            border-radius: 8px;
-            font-family: inherit;
+            font-weight: 700;
             font-size: 0.9rem;
-            box-sizing: border-box;
-            outline: none;
         }
-        .admin-modal-footer {
-            padding: 1rem 1.5rem;
-            background: #F8FAFC;
-            border-top: 1px solid #E2E8F0;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
+
+        .pill {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.78rem;
+            font-weight: 700;
         }
+        .pill-blue { background: #DBEAFE; color: #1D4ED8; }
+        .pill-green { background: #DCFCE7; color: #15803D; }
+
+        /* Simple Modal */
+        .modal-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: all 0.3s;
+        }
+        .modal-bg.active { opacity: 1; pointer-events: auto; }
+        .modal-box {
+            background: white; width: 90%; max-width: 460px;
+            border-radius: 20px; padding: 1.75rem; box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .modal-box h3 { margin-bottom: 1.25rem; font-size: 1.2rem; }
+        .field { margin-bottom: 1rem; }
+        .field label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 4px; }
+        .field input, .field select {
+            width: 100%; padding: 0.7rem; border-radius: 10px; border: 1.5px solid #CBD5E1; font-family: inherit; font-size: 0.9rem; outline: none;
+        }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem; }
     </style>
 </head>
 <body>
 
-    <!-- Admin Topbar Header -->
-    <header class="admin-topbar">
-        <div class="admin-brand">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M178 20L12 3l-5 17 7-6 6 6 1-9z"/><path d="M17.8 20l-4.7-9-4.7 9"/></svg>
-            <h1>VOYAGE <span class="badge-admin">Admin Portal</span></h1>
+    <!-- Simple Top Bar -->
+    <header>
+        <div class="brand">
+            ✈️ VOYAGE <span class="badge-tag">Admin Panel</span>
         </div>
-        <div class="admin-nav-actions">
-            <button class="btn-admin btn-admin-primary" onclick="openModal('addUserModal')">
+        <div class="header-actions">
+            <button class="btn btn-primary" onclick="openModal('addUserModal')">
                 + Add User
             </button>
-            <button class="btn-admin btn-admin-outline" onclick="openModal('addTripModal')">
-                + Add Trip
-            </button>
-            <a href="{{ url_for('dashboard') }}" class="btn-admin btn-admin-outline">
-                ← Exit to Website
+            <a href="{{ url_for('dashboard') }}" class="btn btn-light">
+                ← Exit Admin
             </a>
-            <a href="{{ url_for('admin_logout') }}" class="btn-admin btn-admin-danger" style="font-size:0.82rem;">
-                🔒 Admin Logout
+            <a href="{{ url_for('admin_logout') }}" class="btn btn-danger">
+                Logout
             </a>
         </div>
     </header>
 
-    <div class="admin-container">
-        <!-- Flash Messages -->
+    <div class="container">
+        <!-- Flash Alert Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div style="padding: 1rem 1.25rem; border-radius: 10px; margin-bottom: 1.5rem; font-weight: 600; font-size: 0.9rem; {% if category == 'error' %}background:#FEE2E2; color:#991B1B; border:1px solid #FCA5A5;{% else %}background:#DCFCE7; color:#166534; border:1px solid #86EFAC;{% endif %}">
+                    <div style="padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; font-weight: 600; font-size: 0.9rem; {% if category == 'error' %}background:#FEE2E2; color:#991B1B;{% else %}background:#DCFCE7; color:#166534;{% endif %}">
                         {{ message }}
                     </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
 
-        <!-- KPI Metric Cards -->
-        <div class="kpi-grid">
-            <div class="kpi-card">
-                <div>
-                    <div class="kpi-title">Total Registered Users</div>
-                    <div class="kpi-value">{{ total_users }}</div>
-                    <div class="kpi-sub">↑ 100% Verified Users</div>
-                </div>
-                <div class="kpi-icon" style="background:#EFF6FF; color:#2563EB;">👥</div>
+        <!-- Friendly Welcome Banner -->
+        <div class="welcome-card">
+            <div>
+                <h2>Hello, Pranay! 👋</h2>
+                <p>Manage your registered users, travel itineraries, and customer bookings seamlessly.</p>
             </div>
+            <button class="btn btn-primary" onclick="openModal('addTripModal')">
+                + New Trip Record
+            </button>
+        </div>
 
-            <div class="kpi-card">
+        <!-- 3 Simple Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#EFF6FF; color:#2563EB;">👥</div>
                 <div>
-                    <div class="kpi-title">Active Trips Planned</div>
-                    <div class="kpi-value">{{ total_trips }}</div>
-                    <div class="kpi-sub">Top Dest: Goa & Jaipur</div>
+                    <div class="stat-number">{{ total_users }}</div>
+                    <div class="stat-label">Registered Users</div>
                 </div>
-                <div class="kpi-icon" style="background:#ECFDF5; color:#10B981;">✈️</div>
             </div>
-
-            <div class="kpi-card">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#ECFDF5; color:#10B981;">✈️</div>
                 <div>
-                    <div class="kpi-title">Bookings Processed</div>
-                    <div class="kpi-value">{{ total_bookings }}</div>
-                    <div class="kpi-sub">Hotels & Flights</div>
+                    <div class="stat-number">{{ total_trips }}</div>
+                    <div class="stat-label">Trips Planned</div>
                 </div>
-                <div class="kpi-icon" style="background:#FEF3C7; color:#D97706;">🏨</div>
             </div>
-
-            <div class="kpi-card">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#F3E8FF; color:#9333EA;">💰</div>
                 <div>
-                    <div class="kpi-title">Revenue & Managed Budget</div>
-                    <div class="kpi-value">₹{{ "{:,}".format(total_revenue) }}</div>
-                    <div class="kpi-sub">Total Platform Value</div>
+                    <div class="stat-number">₹{{ "{:,}".format(total_revenue) }}</div>
+                    <div class="stat-label">Total Platform Budget</div>
                 </div>
-                <div class="kpi-icon" style="background:#F3E8FF; color:#9333EA;">💰</div>
             </div>
         </div>
 
-        <!-- Registered Users Table -->
-        <div class="admin-card">
-            <div class="admin-card-header">
-                <h2 class="admin-card-title">👥 Registered Users Management ({{ total_users }})</h2>
-                <input type="text" id="userSearchInput" class="table-search-box" placeholder="🔍 Search by name, email, country..." onkeyup="filterUsersTable()">
-            </div>
-            <div style="overflow-x:auto;">
-                <table class="admin-table" id="usersTable">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>User Name</th>
-                            <th>Email Address</th>
-                            <th>Country</th>
-                            <th>Phone</th>
-                            <th>Account Created</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for u in users %}
-                        <tr>
-                            <td><strong>#{{ u.id }}</strong></td>
-                            <td>
-                                <div style="display:flex; align-items:center;">
-                                    <span class="user-avatar-sm">{{ u.full_name[0] | upper }}</span>
-                                    <strong>{{ u.full_name }}</strong>
-                                </div>
-                            </td>
-                            <td>{{ u.email }}</td>
-                            <td><span class="badge-status badge-active">{{ u.country or 'India' }}</span></td>
-                            <td>{{ u.phone or '+91 9876543210' }}</td>
-                            <td>{{ u.created_at[:10] if u.created_at else 'Recent' }}</td>
-                            <td>
-                                <button class="btn-admin btn-admin-outline" style="padding:4px 8px; font-size:0.78rem;" onclick="openEditModal({{ u.id }}, '{{ u.full_name }}', '{{ u.email }}', '{{ u.country }}', '{{ u.phone }}')">
-                                    ✏️ Edit
-                                </button>
-                                <form action="{{ url_for('admin_delete_user', user_id=u.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete user {{ u.full_name }}?');">
-                                    <button type="submit" class="btn-admin btn-admin-danger" style="padding:4px 8px; font-size:0.78rem;">
-                                        🗑️ Delete
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        <!-- Tab Switcher -->
+        <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('usersTab', this)">👥 Users ({{ total_users }})</button>
+            <button class="tab-btn" onclick="switchTab('tripsTab', this)">✈️ Trips Planned ({{ total_trips }})</button>
+            <button class="tab-btn" onclick="switchTab('bookingsTab', this)">🏨 Bookings ({{ total_bookings }})</button>
         </div>
 
-        <!-- Planned Trips Table -->
-        <div class="admin-card">
-            <div class="admin-card-header">
-                <h2 class="admin-card-title">✈️ Planned Trips & Destinations ({{ total_trips }})</h2>
-                <button class="btn-admin btn-admin-primary" style="font-size:0.8rem;" onclick="openModal('addTripModal')">
-                    + Add New Trip Record
-                </button>
+        <!-- TAB 1: USERS -->
+        <div id="usersTab" class="content-card tab-content">
+            <div class="card-top">
+                <h3 style="font-size:1.05rem; font-weight:700;">User Accounts</h3>
+                <input type="text" id="userSearch" class="search-input" placeholder="🔍 Search users..." onkeyup="searchUsers()">
             </div>
-            <div style="overflow-x:auto;">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Trip ID</th>
-                            <th>Traveler Name</th>
-                            <th>Destination</th>
-                            <th>Budget (₹)</th>
-                            <th>Travel Dates</th>
-                            <th>Companion</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for t in trips %}
-                        <tr>
-                            <td><strong>#TRIP-{{ t.id }}</strong></td>
-                            <td><strong>{{ t.user_name }}</strong></td>
-                            <td><span style="color:#2563EB; font-weight:700;">📍 {{ t.destination }}</span></td>
-                            <td><strong>₹{{ "{:,}".format(t.budget) }}</strong></td>
-                            <td>{{ t.travel_dates }}</td>
-                            <td>{{ t.companion }}</td>
-                            <td><span class="badge-status badge-upcoming">{{ t.status }}</span></td>
-                            <td>
-                                <form action="{{ url_for('admin_delete_trip', trip_id=t.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete trip record?');">
-                                    <button type="submit" class="btn-admin btn-admin-danger" style="padding:4px 8px; font-size:0.78rem;">
-                                        🗑️ Delete
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            <table class="simple-table" id="usersTable">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Country</th>
+                        <th>Phone</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td>
+                            <div class="user-chip">
+                                <div class="avatar">{{ u.full_name[0] | upper }}</div>
+                                <div>{{ u.full_name }}</div>
+                            </div>
+                        </td>
+                        <td>{{ u.email }}</td>
+                        <td><span class="pill pill-green">{{ u.country or 'India' }}</span></td>
+                        <td>{{ u.phone or '+91 9876543210' }}</td>
+                        <td>
+                            <button class="btn btn-light" style="padding:4px 10px; font-size:0.8rem;" onclick="editUser({{ u.id }}, '{{ u.full_name }}', '{{ u.email }}', '{{ u.country }}', '{{ u.phone }}')">Edit</button>
+                            <form action="{{ url_for('admin_delete_user', user_id=u.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete user {{ u.full_name }}?');">
+                                <button type="submit" class="btn btn-danger" style="padding:4px 10px; font-size:0.8rem;">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
 
-        <!-- Bookings Table -->
-        <div class="admin-card">
-            <div class="admin-card-header">
-                <h2 class="admin-card-title">🏨 Hotel & Flight Bookings Overview ({{ total_bookings }})</h2>
+        <!-- TAB 2: TRIPS -->
+        <div id="tripsTab" class="content-card tab-content" style="display:none;">
+            <div class="card-top">
+                <h3 style="font-size:1.05rem; font-weight:700;">Planned Trips & Destinations</h3>
             </div>
-            <div style="overflow-x:auto;">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Booking ID</th>
-                            <th>Traveler</th>
-                            <th>Resort / Hotel</th>
-                            <th>Package Type</th>
-                            <th>Amount (₹)</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for b in bookings %}
-                        <tr>
-                            <td><strong>#BK-{{ b.id }}</strong></td>
-                            <td><strong>{{ b.user_name }}</strong></td>
-                            <td>{{ b.destination }}</td>
-                            <td>{{ b.booking_type }}</td>
-                            <td><strong style="color:#10B981;">₹{{ "{:,}".format(b.amount) }}</strong></td>
-                            <td><span class="badge-status badge-active">{{ b.status }}</span></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <table class="simple-table">
+                <thead>
+                    <tr>
+                        <th>Traveler</th>
+                        <th>Destination</th>
+                        <th>Budget</th>
+                        <th>Dates</th>
+                        <th>Style</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in trips %}
+                    <tr>
+                        <td><strong>{{ t.user_name }}</strong></td>
+                        <td><span style="color:#2563EB; font-weight:700;">📍 {{ t.destination }}</span></td>
+                        <td><strong>₹{{ "{:,}".format(t.budget) }}</strong></td>
+                        <td>{{ t.travel_dates }}</td>
+                        <td><span class="pill pill-blue">{{ t.companion }}</span></td>
+                        <td>
+                            <form action="{{ url_for('admin_delete_trip', trip_id=t.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete trip?');">
+                                <button type="submit" class="btn btn-danger" style="padding:4px 10px; font-size:0.8rem;">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- TAB 3: BOOKINGS -->
+        <div id="bookingsTab" class="content-card tab-content" style="display:none;">
+            <div class="card-top">
+                <h3 style="font-size:1.05rem; font-weight:700;">Customer Bookings</h3>
             </div>
+            <table class="simple-table">
+                <thead>
+                    <tr>
+                        <th>Traveler</th>
+                        <th>Hotel / Resort</th>
+                        <th>Package</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in bookings %}
+                    <tr>
+                        <td><strong>{{ b.user_name }}</strong></td>
+                        <td>{{ b.destination }}</td>
+                        <td>{{ b.booking_type }}</td>
+                        <td><strong style="color:#10B981;">₹{{ "{:,}".format(b.amount) }}</strong></td>
+                        <td><span class="pill pill-green">{{ b.status }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <!-- ADD USER MODAL -->
-    <div class="admin-modal-overlay" id="addUserModal">
-        <div class="admin-modal">
-            <div class="admin-modal-header">
-                <h3 style="margin:0;">👤 Add New User</h3>
-                <button style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;" onclick="closeModal('addUserModal')">&times;</button>
-            </div>
+    <!-- Simple Add User Modal -->
+    <div class="modal-bg" id="addUserModal">
+        <div class="modal-box">
+            <h3>👤 Add New User</h3>
             <form action="{{ url_for('admin_add_user') }}" method="POST">
-                <div class="admin-modal-body">
-                    <div class="form-group-admin">
-                        <label>Full Name</label>
-                        <input type="text" name="full_name" class="form-input-admin" placeholder="e.g. Vikramaditya Singh" required>
-                    </div>
-                    <div class="form-group-admin">
-                        <label>Email Address</label>
-                        <input type="email" name="email" class="form-input-admin" placeholder="e.g. vikram@voyage.com" required>
-                    </div>
-                    <div class="form-group-admin">
-                        <label>Password</label>
-                        <input type="password" name="password" class="form-input-admin" value="password123" required>
-                    </div>
-                    <div class="form-group-admin">
-                        <label>Country</label>
-                        <input type="text" name="country" class="form-input-admin" value="India">
-                    </div>
-                    <div class="form-group-admin">
-                        <label>Phone Number</label>
-                        <input type="text" name="phone" class="form-input-admin" placeholder="+91 9876543210">
-                    </div>
+                <div class="field">
+                    <label>Full Name</label>
+                    <input type="text" name="full_name" placeholder="Full Name" required>
                 </div>
-                <div class="admin-modal-footer">
-                    <button type="button" class="btn-admin btn-admin-outline" onclick="closeModal('addUserModal')">Cancel</button>
-                    <button type="submit" class="btn-admin btn-admin-primary">Add User</button>
+                <div class="field">
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="Email" required>
+                </div>
+                <div class="field">
+                    <label>Password</label>
+                    <input type="password" name="password" value="password123" required>
+                </div>
+                <div class="field">
+                    <label>Country</label>
+                    <input type="text" name="country" value="India">
+                </div>
+                <div class="field">
+                    <label>Phone</label>
+                    <input type="text" name="phone" placeholder="+91 9876543210">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-light" onclick="closeModal('addUserModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save User</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- EDIT USER MODAL -->
-    <div class="admin-modal-overlay" id="editUserModal">
-        <div class="admin-modal">
-            <div class="admin-modal-header">
-                <h3 style="margin:0;">✏️ Edit User Details</h3>
-                <button style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;" onclick="closeModal('editUserModal')">&times;</button>
-            </div>
-            <form id="editUserForm" method="POST">
-                <div class="admin-modal-body">
-                    <div class="form-group-admin">
-                        <label>Full Name</label>
-                        <input type="text" id="edit_full_name" name="full_name" class="form-input-admin" required>
-                    </div>
-                    <div class="form-group-admin">
-                        <label>Email Address</label>
-                        <input type="email" id="edit_email" name="email" class="form-input-admin" required>
-                    </div>
-                    <div class="form-group-admin">
-                        <label>Country</label>
-                        <input type="text" id="edit_country" name="country" class="form-input-admin">
-                    </div>
-                    <div class="form-group-admin">
-                        <label>Phone Number</label>
-                        <input type="text" id="edit_phone" name="phone" class="form-input-admin">
-                    </div>
+    <!-- Simple Edit User Modal -->
+    <div class="modal-bg" id="editUserModal">
+        <div class="modal-box">
+            <h3>✏️ Edit User</h3>
+            <form id="editForm" method="POST">
+                <div class="field">
+                    <label>Full Name</label>
+                    <input type="text" id="edit_name" name="full_name" required>
                 </div>
-                <div class="admin-modal-footer">
-                    <button type="button" class="btn-admin btn-admin-outline" onclick="closeModal('editUserModal')">Cancel</button>
-                    <button type="submit" class="btn-admin btn-admin-primary">Save Changes</button>
+                <div class="field">
+                    <label>Email</label>
+                    <input type="email" id="edit_email" name="email" required>
+                </div>
+                <div class="field">
+                    <label>Country</label>
+                    <input type="text" id="edit_country" name="country">
+                </div>
+                <div class="field">
+                    <label>Phone</label>
+                    <input type="text" id="edit_phone" name="phone">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-light" onclick="closeModal('editUserModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- ADD TRIP MODAL -->
-    <div class="admin-modal-overlay" id="addTripModal">
-        <div class="admin-modal">
-            <div class="admin-modal-header">
-                <h3 style="margin:0;">✈️ Add New Trip Record</h3>
-                <button style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;" onclick="closeModal('addTripModal')">&times;</button>
-            </div>
+    <!-- Simple Add Trip Modal -->
+    <div class="modal-bg" id="addTripModal">
+        <div class="modal-box">
+            <h3>✈️ Add Trip Record</h3>
             <form action="{{ url_for('admin_add_trip') }}" method="POST">
-                <div class="admin-modal-body">
-                    <div class="form-group-admin">
-                        <label>Traveler Name</label>
-                        <input type="text" name="user_name" class="form-input-admin" value="Pranay Kumar" required>
-                    </div>
-                    <div class="form-group-admin">
-                        <label>Destination Name</label>
-                        <input type="text" name="destination" class="form-input-admin" placeholder="e.g. Manali Snow Resort" required>
-                    </div>
-                    <div class="form-group-admin">
-                        <label>Budget (₹ INR)</label>
-                        <input type="number" name="budget" class="form-input-admin" value="30000" step="1000">
-                    </div>
-                    <div class="form-group-admin">
-                        <label>Travel Dates</label>
-                        <input type="text" name="travel_dates" class="form-input-admin" value="Dec 20 - Dec 26, 2026">
-                    </div>
-                    <div class="form-group-admin">
-                        <label>Companion</label>
-                        <select name="companion" class="form-input-admin">
-                            <option value="Family Vacation">Family Vacation</option>
-                            <option value="Friends Adventure">Friends Adventure</option>
-                            <option value="Couple Romantic">Couple / Romantic</option>
-                            <option value="Solo Explorer">Solo Explorer</option>
-                        </select>
-                    </div>
+                <div class="field">
+                    <label>Traveler Name</label>
+                    <input type="text" name="user_name" value="Pranay Kumar" required>
                 </div>
-                <div class="admin-modal-footer">
-                    <button type="button" class="btn-admin btn-admin-outline" onclick="closeModal('addTripModal')">Cancel</button>
-                    <button type="submit" class="btn-admin btn-admin-primary">Add Trip</button>
+                <div class="field">
+                    <label>Destination</label>
+                    <input type="text" name="destination" placeholder="e.g. Goa Beaches" required>
+                </div>
+                <div class="field">
+                    <label>Budget (₹)</label>
+                    <input type="number" name="budget" value="25000" step="1000">
+                </div>
+                <div class="field">
+                    <label>Dates</label>
+                    <input type="text" name="travel_dates" value="Dec 2026">
+                </div>
+                <div class="field">
+                    <label>Style</label>
+                    <select name="companion">
+                        <option value="Family Vacation">Family Vacation</option>
+                        <option value="Friends Adventure">Friends Adventure</option>
+                        <option value="Couple Romantic">Couple / Romantic</option>
+                        <option value="Solo Explorer">Solo Explorer</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-light" onclick="closeModal('addTripModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Trip</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        function openModal(modalId) {
-            document.getElementById(modalId).classList.add('active');
-        }
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).style.display = 'block';
+            btn.classList.add('active');
         }
 
-        function openEditModal(userId, name, email, country, phone) {
-            const form = document.getElementById('editUserForm');
-            form.action = '/admin/user/edit/' + userId;
-            document.getElementById('edit_full_name').value = name;
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        function editUser(id, name, email, country, phone) {
+            document.getElementById('editForm').action = '/admin/user/edit/' + id;
+            document.getElementById('edit_name').value = name;
             document.getElementById('edit_email').value = email;
             document.getElementById('edit_country').value = country || 'India';
             document.getElementById('edit_phone').value = phone || '';
             openModal('editUserModal');
         }
 
-        function filterUsersTable() {
-            const query = document.getElementById('userSearchInput').value.toLowerCase();
-            const rows = document.querySelectorAll('#usersTable tbody tr');
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(query) ? '' : 'none';
+        function searchUsers() {
+            const q = document.getElementById('userSearch').value.toLowerCase();
+            document.querySelectorAll('#usersTable tbody tr').forEach(tr => {
+                tr.style.display = tr.innerText.toLowerCase().includes(q) ? '' : 'none';
             });
         }
     </script>
