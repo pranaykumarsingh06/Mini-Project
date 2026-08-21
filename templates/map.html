@@ -3,35 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Interactive Map - Explore destinations, POIs, and plan routes with Voyage.">
-    <title>Voyage — Interactive Map</title>
+    <meta name="description" content="Interactive Map - Explore Indian destinations, POIs, and plan routes with Voyage.">
+    <title>Voyage — Interactive Maps India</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-    <!-- Leaflet.js CSS for real interactive map -->
+    <!-- Leaflet.js CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <style>
         .map-page-layout {
-            display: grid;
-            grid-template-columns: 320px 1fr;
-            height: calc(100vh - 88px);
+            display: flex;
             gap: 1.5rem;
+            min-height: 650px;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        @media (max-width: 900px) {
+            .map-page-layout {
+                flex-direction: column;
+            }
+            .map-sidebar {
+                width: 100% !important;
+            }
         }
         .map-sidebar {
+            width: 320px;
+            flex-shrink: 0;
             display: flex;
             flex-direction: column;
             gap: 1.25rem;
-            height: 100%;
-            overflow-y: auto;
-            padding-right: 4px;
         }
         .map-card {
             background: white;
             border-radius: 14px;
             padding: 1.25rem;
             border: 1px solid #E2E8F0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
         .map-card h3 {
             font-size: 0.95rem;
@@ -42,14 +51,7 @@
             justify-content: space-between;
             align-items: center;
         }
-        .map-card h3 a {
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: #2563EB;
-            text-decoration: none;
-        }
         
-        /* POI Switch Group */
         .poi-switch-group {
             display: flex;
             flex-direction: column;
@@ -67,11 +69,7 @@
             align-items: center;
             gap: 8px;
         }
-        .poi-icon {
-            font-size: 1.1rem;
-        }
 
-        /* Toggle switch */
         .switch {
             position: relative;
             display: inline-block;
@@ -80,8 +78,7 @@
         }
         .switch input {
             opacity: 0;
-            width: 0;
-            height: 0;
+            width: 0; height: 0;
         }
         .slider {
             position: absolute;
@@ -94,22 +91,15 @@
         .slider:before {
             position: absolute;
             content: "";
-            height: 14px;
-            width: 14px;
-            left: 3px;
-            bottom: 3px;
+            height: 14px; width: 14px;
+            left: 3px; bottom: 3px;
             background-color: white;
             transition: .3s;
             border-radius: 50%;
         }
-        input:checked + .slider {
-            background-color: #2563EB;
-        }
-        input:checked + .slider:before {
-            transform: translateX(18px);
-        }
+        input:checked + .slider { background-color: #2563EB; }
+        input:checked + .slider:before { transform: translateX(18px); }
 
-        /* Search input */
         .search-group {
             display: flex;
             flex-direction: column;
@@ -120,367 +110,330 @@
         }
         .search-input-wrapper input {
             width: 100%;
-            padding: 8px 12px 8px 36px;
-            border: 1.5px solid #E2E8F0;
-            border-radius: 8px;
+            padding: 9px 12px 9px 36px;
+            border: 1.5px solid #CBD5E1;
+            border-radius: 10px;
             font-family: 'Inter', sans-serif;
-            font-size: 0.85rem;
+            font-size: 0.88rem;
             outline: none;
+            box-sizing: border-box;
         }
-        .search-input-wrapper input:focus {
-            border-color: #2563EB;
-        }
+        .search-input-wrapper input:focus { border-color: #2563EB; }
         .search-input-wrapper svg {
             position: absolute;
-            left: 10px;
-            top: 50%;
+            left: 10px; top: 50%;
             transform: translateY(-50%);
-            width: 16px;
-            height: 16px;
+            width: 16px; height: 16px;
             color: #94A3B8;
         }
         .search-select {
             width: 100%;
             padding: 8px 12px;
-            border: 1.5px solid #E2E8F0;
-            border-radius: 8px;
+            border: 1.5px solid #CBD5E1;
+            border-radius: 10px;
             font-family: 'Inter', sans-serif;
-            font-size: 0.85rem;
+            font-size: 0.88rem;
             color: #1E293B;
             background: white;
             outline: none;
+            box-sizing: border-box;
         }
 
-        /* Route Planner */
         .route-input-group {
             display: flex;
             flex-direction: column;
             gap: 8px;
-            position: relative;
         }
-        .route-line {
-            position: absolute;
-            left: 14px;
-            top: 24px;
-            bottom: 24px;
-            width: 2px;
-            background: #CBD5E1;
-            border-dashed: 1px;
-            z-index: 1;
-        }
-        .route-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-            z-index: 2;
-        }
-        .route-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-        .route-dot--start {
-            background: #10B981;
-            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
-        }
-        .route-dot--end {
-            background: #EF4444;
-            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
-        }
-        .route-input {
+        .route-row input {
             width: 100%;
             padding: 8px 12px;
-            border: 1.5px solid #E2E8F0;
+            border: 1.5px solid #CBD5E1;
             border-radius: 8px;
-            font-family: 'Inter', sans-serif;
+            font-family: inherit;
             font-size: 0.85rem;
-            outline: none;
-            background: #F8FAFC;
-        }
-        .route-input:focus {
-            border-color: #2563EB;
-            background: white;
+            box-sizing: border-box;
         }
 
         /* Map Container */
         .map-view-container {
-            background: white;
-            border-radius: 18px;
-            border: 1px solid #E2E8F0;
-            height: 100%;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-        }
-        #leafletMap {
+            flex-grow: 1;
             width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-        
-        /* Floating Google maps header */
-        .map-search-overlay {
-            position: absolute;
-            top: 16px;
-            left: 16px;
-            z-index: 10;
-            background: white;
-            padding: 8px 16px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.88rem;
-            font-weight: 600;
-            color: #1E293B;
-            border: 1px solid #E2E8F0;
-        }
-        .map-search-overlay svg {
-            width: 16px;
-            height: 16px;
-            color: #2563EB;
+            min-height: 650px;
+            height: 650px;
+            background: #E2E8F0;
+            border-radius: 18px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #CBD5E1;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
         }
 
-        /* Custom marker classes */
+        #leafletMapContainer {
+            width: 100%;
+            height: 100%;
+            min-height: 650px;
+            z-index: 1;
+        }
+
+        .map-mode-bar {
+            position: absolute;
+            top: 14px; left: 14px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            padding: 6px;
+            border-radius: 12px;
+            display: flex;
+            gap: 6px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+            border: 1px solid #E2E8F0;
+        }
+        .map-mode-btn {
+            padding: 6px 12px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background: #F1F5F9;
+            color: #475569;
+            transition: all 0.2s;
+        }
+        .map-mode-btn.active {
+            background: #2563EB;
+            color: white;
+        }
+
         .custom-marker {
             width: 32px;
             height: 32px;
-            border-radius: 50% 50% 50% 0;
-            background: #10B981;
-            position: absolute;
-            transform: rotate(-45deg);
-            left: 50%;
-            top: 50%;
-            margin: -16px 0 0 -16px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px solid white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-        }
-        .custom-marker span {
-            transform: rotate(45deg);
             color: white;
-            font-size: 0.9rem;
-            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border: 2px solid white;
         }
     </style>
 </head>
 <body class="dashboard-body">
 
-    <!-- ===== Sidebar ===== -->
-    <aside class="sidebar">
-        <a href="{{ url_for('home') }}" class="sidebar__brand">Voyage</a>
-        <ul class="sidebar__nav">
-            <li>
-                <a href="{{ url_for('dashboard') }}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                    Dashboard
-                </a>
-            </li>
-            <li>
-                <a href="{{ url_for('trip_planner') }}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                    Trip Planner
-                </a>
-            </li>
-            <li>
-                <a href="{{ url_for('count_places') }}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                    Count Places
-                </a>
-            </li>
-            <li>
-                <a href="{{ url_for('ai_search') }}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                    Meetings & Search
-                </a>
-            </li>
-            <li>
-                <a href="{{ url_for('bookings') }}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    Bookings
-                </a>
-            </li>
-            <li>
-                <a href="{{ url_for('expenses') }}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                    Expenses
-                </a>
-            </li>
-            <li>
-                <a href="{{ url_for('count_places') }}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-                    Weather & Detail
-                </a>
-            </li>
-            <li>
-                <a href="{{ url_for('map_page') }}" class="active">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
-                    Maps
-                </a>
-            </li>
-            <li>
-                <a href="{{ url_for('ai_search') }}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                    Community
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                    Settings
-                </a>
-            </li>
-        </ul>
-    </aside>
-
-    <!-- ===== Top Bar ===== -->
-    <header class="topbar">
-        <div class="topbar__icons">
-            <button class="topbar__icon-btn" aria-label="Profile">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </button>
-            <button class="topbar__icon-btn" aria-label="Notifications">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                <span class="badge"></span>
-            </button>
-            <button class="topbar__icon-btn" aria-label="Messages">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-            </button>
-            <button class="topbar__icon-btn" aria-label="Search">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            </button>
-            <button class="topbar__icon-btn" aria-label="Dark Mode">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-            </button>
+    <!-- App Header -->
+    <header class="topbar" style="padding: 1rem 2rem; background:white; border-bottom:1px solid #E2E8F0; display:flex; justify-content:space-between; align-items:center;">
+        <div style="font-weight:800; font-size:1.25rem; color:#0F172A; display:flex; align-items:center; gap:8px;">
+            ✈️ VOYAGE <span style="font-size:0.75rem; background:#EFF6FF; color:#2563EB; padding:3px 10px; border-radius:12px;">Google Maps India</span>
         </div>
-        <div class="topbar__avatar">
-            <div class="topbar__avatar-img">{{ session.get('user_name', 'U')[0] | upper }}</div>
-            <span class="topbar__user-name">{{ session.get('user_name', 'User') }}</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        <div style="display:flex; gap:12px;">
+            <a href="{{ url_for('dashboard') }}" class="btn-light" style="padding:6px 14px; border-radius:8px; text-decoration:none; font-weight:600; font-size:0.88rem; background:#F1F5F9; color:#475569;">← Back to Dashboard</a>
+            <a href="{{ url_for('count_places') }}" class="btn-primary" style="padding:6px 14px; border-radius:8px; text-decoration:none; font-weight:600; font-size:0.88rem; background:#2563EB; color:white;">Explore Places</a>
         </div>
-        <a href="{{ url_for('logout') }}" class="topbar__logout" title="Logout">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            Logout
-        </a>
     </header>
 
-    <!-- ===== Main Content ===== -->
-    <main class="main-content">
+    <main style="padding: 1.5rem 2rem;">
         <div class="map-page-layout">
+            
             <!-- Sidebar Controls -->
             <div class="map-sidebar">
+                
                 <!-- POI Filters -->
                 <div class="map-card">
-                    <h3>POI Filters <a href="#" onclick="event.preventDefault(); toggleAllPOIs(true)">See all</a></h3>
+                    <h3>Sightseeing Filters <span style="font-size:0.75rem; color:#64748B;">Live</span></h3>
                     <div class="poi-switch-group">
                         <div class="poi-switch-row">
-                            <div class="poi-label-container">
-                                <span class="poi-icon">🏨</span>
-                                <span>Hotels</span>
-                            </div>
-                            <label class="switch">
-                                <input type="checkbox" id="hotelSwitch" checked>
-                                <span class="slider"></span>
-                            </label>
+                            <div class="poi-label-container"><span style="font-size:1.1rem;">🕌</span><span>Heritage & Temples</span></div>
+                            <label class="switch"><input type="checkbox" id="heritageSwitch" checked onchange="toggleFilter()"><span class="slider"></span></label>
                         </div>
                         <div class="poi-switch-row">
-                            <div class="poi-label-container">
-                                <span class="poi-icon">🍴</span>
-                                <span>Restaurants</span>
-                            </div>
-                            <label class="switch">
-                                <input type="checkbox" id="restaurantSwitch" checked>
-                                <span class="slider"></span>
-                            </label>
+                            <div class="poi-label-container"><span style="font-size:1.1rem;">🏖️</span><span>Beaches & Coastline</span></div>
+                            <label class="switch"><input type="checkbox" id="beachSwitch" checked onchange="toggleFilter()"><span class="slider"></span></label>
                         </div>
                         <div class="poi-switch-row">
-                            <div class="poi-label-container">
-                                <span class="poi-icon">🏛️</span>
-                                <span>Museums</span>
-                            </div>
-                            <label class="switch">
-                                <input type="checkbox" id="museumSwitch" checked>
-                                <span class="slider"></span>
-                            </label>
+                            <div class="poi-label-container"><span style="font-size:1.1rem;">🏔️</span><span>Mountains & Lakes</span></div>
+                            <label class="switch"><input type="checkbox" id="mountainSwitch" checked onchange="toggleFilter()"><span class="slider"></span></label>
                         </div>
                         <div class="poi-switch-row">
-                            <div class="poi-label-container">
-                                <span class="poi-icon">🚗</span>
-                                <span>Transport</span>
-                            </div>
-                            <label class="switch">
-                                <input type="checkbox" id="transportSwitch" checked>
-                                <span class="slider"></span>
-                            </label>
+                            <div class="poi-label-container"><span style="font-size:1.1rem;">🏨</span><span>Luxury Hotels</span></div>
+                            <label class="switch"><input type="checkbox" id="hotelSwitch" checked onchange="toggleFilter()"><span class="slider"></span></label>
                         </div>
                     </div>
                 </div>
 
-                <!-- Nearby Search -->
+                <!-- Search India Places -->
                 <div class="map-card search-group">
-                    <h3 style="margin-bottom:0;">Search India Maps</h3>
+                    <h3 style="margin-bottom:0;">🔍 Search India Places</h3>
                     <div class="search-input-wrapper">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                        <input type="text" placeholder="Search any city (e.g. Goa, Agra, Jaipur)..." id="mapSearchInput" onkeyup="if(event.key==='Enter') searchIndiaMap(this.value)">
+                        <input type="text" placeholder="e.g. Taj Mahal, Goa, Jaipur..." id="mapSearchInput" onkeyup="if(event.key==='Enter') searchIndiaMap(this.value)">
                     </div>
                     <select class="search-select" onchange="searchIndiaMap(this.value)">
-                        <option value="India">All India Destinations</option>
-                        <option value="Taj Mahal Agra">Taj Mahal, Agra</option>
-                        <option value="Goa Beaches">Goa Beaches & Baga</option>
-                        <option value="Jaipur Amber Fort">Jaipur Pink City</option>
-                        <option value="Kerala Backwaters">Kerala Backwaters</option>
-                        <option value="Leh Ladakh Pangong">Leh Ladakh Lake</option>
-                        <option value="Udaipur Lake Palace">Udaipur Lakes</option>
+                        <option value="India">All India Sightseeing Places</option>
+                        <option value="Taj Mahal, Agra">🕌 Taj Mahal, Agra</option>
+                        <option value="Baga Beach, Goa">🏖️ Goa Beaches & Baga</option>
+                        <option value="Amber Fort, Jaipur">🏰 Amber Fort, Jaipur</option>
+                        <option value="Kerala Backwaters, Alleppey">🛶 Kerala Backwaters</option>
+                        <option value="Pangong Tso, Leh Ladakh">🏔️ Pangong Tso Lake, Leh</option>
+                        <option value="City Palace, Udaipur">🏰 Udaipur Lake Palace</option>
+                        <option value="Red Fort, New Delhi">🏛️ New Delhi Monuments</option>
                     </select>
                 </div>
 
                 <!-- Route Planner -->
                 <div class="map-card search-group">
-                    <h3>Route Planner</h3>
+                    <h3>🛣️ Route Planner</h3>
                     <div class="route-input-group">
-                        <div class="route-line"></div>
                         <div class="route-row">
-                            <div class="route-dot route-dot--start"></div>
-                            <input type="text" class="route-input" value="New Delhi, India" id="routeStart">
+                            <label style="font-size:0.75rem; font-weight:600; color:#64748B;">From:</label>
+                            <input type="text" id="routeStart" value="New Delhi">
                         </div>
                         <div class="route-row">
-                            <div class="route-dot route-dot--end"></div>
-                            <input type="text" class="route-input" value="Agra (Taj Mahal), India" id="routeEnd">
+                            <label style="font-size:0.75rem; font-weight:600; color:#64748B;">To:</label>
+                            <input type="text" id="routeEnd" value="Agra (Taj Mahal)">
                         </div>
                     </div>
-                    <button style="width:100%; margin-top:8px; padding:0.7rem; background:#2563EB; color:white; border:none; border-radius:8px; font-weight:700; cursor:pointer;" onclick="planIndiaRoute()">
-                        📍 Show Route on Google Map
+                    <button style="width:100%; margin-top:8px; padding:0.75rem; background:#2563EB; color:white; border:none; border-radius:10px; font-weight:700; cursor:pointer;" onclick="planIndiaRoute()">
+                        📍 Calculate Route on Map
                     </button>
                 </div>
             </div>
 
-            <!-- Live Google Maps India Container -->
-            <div class="map-view-container" style="position:relative; width:100%; height:100%; min-height:550px; border-radius:18px; overflow:hidden; border:1px solid #CBD5E1;">
-                <div class="map-search-overlay" style="position:absolute; top:16px; left:16px; z-index:10; background:white; padding:8px 16px; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.15); display:flex; align-items:center; gap:8px; font-weight:700; color:#1E293B; border:1px solid #E2E8F0;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                    <span>Google Maps India — Live Sightseeing & Routes</span>
+            <!-- Map View Container -->
+            <div class="map-view-container">
+                <!-- Map Engine Mode Selector -->
+                <div class="map-mode-bar">
+                    <button class="map-mode-btn active" id="btnOsm" onclick="switchMapEngine('osm')">🗺️ Interactive Map</button>
+                    <button class="map-mode-btn" id="btnGoogle" onclick="switchMapEngine('google')">🌐 Google Maps Satellite</button>
+                    <button class="map-mode-btn" onclick="openDirectGoogleMaps()">↗️ Open Google App</button>
                 </div>
-                <iframe id="mainGoogleMap" src="https://maps.google.com/maps?q=India+Taj+Mahal+Agra+Goa+Jaipur+Kerala+Leh&t=&z=5&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0; min-height:550px; width:100%;" allowfullscreen="" loading="lazy"></iframe>
+
+                <!-- OpenStreetMap Leaflet Container -->
+                <div id="leafletMapContainer"></div>
+
+                <!-- Google Maps Embed Iframe (Hidden by default, switchable) -->
+                <iframe id="googleEmbedIframe" src="https://maps.google.com/maps?q=India+Taj+Mahal+Agra+Goa+Jaipur+Kerala+Leh&t=&z=5&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0; width:100%; height:100%; display:none;" allowfullscreen="" loading="lazy"></iframe>
             </div>
         </div>
     </main>
 
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <!-- Leaflet.js script -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
-        function searchIndiaMap(city) {
-            if (!city) return;
-            document.getElementById('mainGoogleMap').src = 'https://maps.google.com/maps?q=' + encodeURIComponent(city + ', India') + '&t=&z=10&ie=UTF8&iwloc=&output=embed';
+        // Global Map Variables
+        let map;
+        let markersGroup;
+
+        const indianDestinations = [
+            { name: "Taj Mahal, Agra", lat: 27.1751, lng: 78.0421, icon: "🕌", category: "heritage", color: "#2563EB", desc: "Wondrous white marble mausoleum built in 1632." },
+            { name: "Goa Baga Beach", lat: 15.5527, lng: 73.7517, icon: "🏖️", category: "beach", color: "#10B981", desc: "Golden sand beaches, water sports & nightlife." },
+            { name: "Amber Fort, Jaipur", lat: 26.9855, lng: 75.8513, icon: "🏰", category: "heritage", color: "#F59E0B", desc: "Hilltop palace fort built from pink & yellow sandstone." },
+            { name: "Kerala Backwaters", lat: 9.4981, lng: 76.3388, icon: "🛶", category: "beach", color: "#10B981", desc: "Serene houseboats floating through palm canals." },
+            { name: "Pangong Tso, Leh Ladakh", lat: 33.7595, lng: 78.6674, icon: "🏔️", category: "mountain", color: "#6366F1", desc: "Crystal clear high-altitude Himalayan lake." },
+            { name: "City Palace, Udaipur", lat: 24.5764, lng: 73.6835, icon: "🏰", category: "heritage", color: "#2563EB", desc: "Majestic palace complex on the banks of Lake Pichola." },
+            { name: "India Gate, New Delhi", lat: 28.6129, lng: 77.2295, icon: "🏛️", category: "heritage", color: "#EF4444", desc: "National war memorial in central New Delhi." }
+        ];
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // Initialize Leaflet map with standard OpenStreetMap tiles
+            map = L.map('leafletMapContainer').setView([22.5937, 78.9629], 5);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            markersGroup = L.layerGroup().addTo(map);
+            renderMarkers();
+        });
+
+        function renderMarkers() {
+            if (!markersGroup) return;
+            markersGroup.clearLayers();
+
+            const showHeritage = document.getElementById('heritageSwitch').checked;
+            const showBeach = document.getElementById('beachSwitch').checked;
+            const showMountain = document.getElementById('mountainSwitch').checked;
+            const showHotel = document.getElementById('hotelSwitch').checked;
+
+            indianDestinations.forEach(dest => {
+                let visible = false;
+                if (dest.category === 'heritage' && showHeritage) visible = true;
+                if (dest.category === 'beach' && showBeach) visible = true;
+                if (dest.category === 'mountain' && showMountain) visible = true;
+                if (dest.category === 'hotel' && showHotel) visible = true;
+
+                if (visible) {
+                    const customIcon = L.divIcon({
+                        html: `<div class="custom-marker" style="background:${dest.color};"><span>${dest.icon}</span></div>`,
+                        className: '',
+                        iconSize: [34, 34],
+                        iconAnchor: [17, 17]
+                    });
+
+                    const marker = L.marker([dest.lat, dest.lng], { icon: customIcon });
+                    marker.bindPopup(`
+                        <div style="padding:4px;">
+                            <h4 style="margin:0 0 4px 0; font-size:0.95rem; font-weight:700;">${dest.icon} ${dest.name}</h4>
+                            <p style="margin:0; font-size:0.82rem; color:#475569;">${dest.desc}</p>
+                        </div>
+                    `);
+                    markersGroup.addLayer(marker);
+                }
+            });
+        }
+
+        function toggleFilter() {
+            renderMarkers();
+        }
+
+        function searchIndiaMap(query) {
+            if (!query) return;
+            // Search in destination list first
+            const match = indianDestinations.find(d => d.name.toLowerCase().includes(query.toLowerCase()));
+            if (match && map) {
+                map.setView([match.lat, match.lng], 10);
+            }
+            
+            // Also update Google Embed Iframe
+            const iframe = document.getElementById('googleEmbedIframe');
+            if (iframe) {
+                iframe.src = 'https://maps.google.com/maps?q=' + encodeURIComponent(query + ', India') + '&t=&z=10&ie=UTF8&iwloc=&output=embed';
+            }
         }
 
         function planIndiaRoute() {
             const start = document.getElementById('routeStart').value;
             const end = document.getElementById('routeEnd').value;
-            document.getElementById('mainGoogleMap').src = 'https://maps.google.com/maps?saddr=' + encodeURIComponent(start) + '&daddr=' + encodeURIComponent(end) + '&ie=UTF8&iwloc=&output=embed';
+            switchMapEngine('google');
+            const iframe = document.getElementById('googleEmbedIframe');
+            if (iframe) {
+                iframe.src = 'https://maps.google.com/maps?saddr=' + encodeURIComponent(start + ', India') + '&daddr=' + encodeURIComponent(end + ', India') + '&ie=UTF8&iwloc=&output=embed';
+            }
+        }
+
+        function switchMapEngine(engine) {
+            const osmContainer = document.getElementById('leafletMapContainer');
+            const googleIframe = document.getElementById('googleEmbedIframe');
+            const btnOsm = document.getElementById('btnOsm');
+            const btnGoogle = document.getElementById('btnGoogle');
+
+            if (engine === 'osm') {
+                osmContainer.style.display = 'block';
+                googleIframe.style.display = 'none';
+                btnOsm.classList.add('active');
+                btnGoogle.classList.remove('active');
+                if (map) map.invalidateSize();
+            } else {
+                osmContainer.style.display = 'none';
+                googleIframe.style.display = 'block';
+                btnGoogle.classList.add('active');
+                btnOsm.classList.remove('active');
+            }
+        }
+
+        function openDirectGoogleMaps() {
+            const q = document.getElementById('mapSearchInput').value || 'India Taj Mahal Agra Goa Jaipur';
+            window.open('https://www.google.com/maps/search/' + encodeURIComponent(q), '_blank');
         }
     </script>
 </body>
