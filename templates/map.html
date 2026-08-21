@@ -442,27 +442,31 @@
                         <div class="route-line"></div>
                         <div class="route-row">
                             <div class="route-dot route-dot--start"></div>
-                            <input type="text" class="route-input" value="Mumbai, India" id="routeStart">
+                    <div class="route-input-group">
+                        <div class="route-line"></div>
+                        <div class="route-row">
+                            <div class="route-dot route-dot--start"></div>
+                            <input type="text" class="route-input" value="New Delhi, India" id="routeStart">
                         </div>
                         <div class="route-row">
                             <div class="route-dot route-dot--end"></div>
-                            <input type="text" class="route-input" value="Pune, India" id="routeEnd">
+                            <input type="text" class="route-input" value="Agra (Taj Mahal), India" id="routeEnd">
                         </div>
                     </div>
                     <select class="search-select" style="margin-top:4px;">
-                        <option>Route Planner</option>
-                        <option>Fastest Route (Expressway)</option>
-                        <option>Scenic Route</option>
+                        <option>India Route Planner (Delhi to Agra Taj Mahal)</option>
+                        <option>Golden Triangle Express (Delhi-Agra-Jaipur)</option>
+                        <option>Coastal Route (Goa Beach Drive)</option>
                     </select>
                 </div>
             </div>
 
             <!-- Real Leaflet Map -->
             <div class="map-view-container">
-                <!-- Floating top search bar as requested in UI mockup -->
+                <!-- Floating top search bar -->
                 <div class="map-search-overlay">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                    <span>Google Maps</span>
+                    <span>Google Maps India — All Destinations & Sightseeing</span>
                 </div>
                 <div id="leafletMap"></div>
             </div>
@@ -473,31 +477,30 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <script>
-        // Initialize Map focusing on Mumbai, India
+        // Initialize Map focusing on All-India Coordinates
         const map = L.map('leafletMap', {
             zoomControl: false // custom placement below
-        }).setView([18.9220, 72.8347], 13);
+        }).setView([22.5937, 78.9629], 5); // Centered on India
 
-        // Add standard zoom control to bottom right (matching mockup layout)
+        // Add standard zoom control to bottom right
         L.control.zoom({
             position: 'bottomright'
         }).addTo(map);
 
-        // Add beautiful premium map tiles (CartoDB Positron for premium minimalist light design)
+        // Add beautiful premium map tiles (CartoDB Positron for light design)
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
         }).addTo(map);
 
-        // Mock POIs in Mumbai
+        // Major POIs across India
         const poiData = [
-            { id: 'hotel1', name: 'The Taj Mahal Palace', type: 'hotel', lat: 18.9218, lng: 72.8333, icon: '🏨', color: '#3B82F6' },
-            { id: 'hotel2', name: 'Trident Nariman Point', type: 'hotel', lat: 18.9268, lng: 72.8205, icon: '🏨', color: '#3B82F6' },
-            { id: 'rest1', name: 'Leopold Cafe', type: 'restaurant', lat: 18.9230, lng: 72.8315, icon: '🍴', color: '#10B981' },
-            { id: 'rest2', name: 'Bademiya Kebab Street', type: 'restaurant', lat: 18.9224, lng: 72.8329, icon: '🍴', color: '#10B981' },
-            { id: 'museum1', name: 'Chhatrapati Shivaji Museum', type: 'museum', lat: 18.9269, lng: 72.8327, icon: '🏛️', color: '#F59E0B' },
-            { id: 'museum2', name: 'National Gallery of Modern Art', type: 'museum', lat: 18.9279, lng: 72.8318, icon: '🏛️', color: '#F59E0B' },
-            { id: 'trans1', name: 'CST Railway Station', type: 'transport', lat: 18.9400, lng: 72.8354, icon: '🚗', color: '#6366F1' },
-            { id: 'trans2', name: 'Gateway Ferry Wharf', type: 'transport', lat: 18.9205, lng: 72.8348, icon: '🚗', color: '#6366F1' }
+            { id: 'agra1', name: 'Taj Mahal, Agra', type: 'museum', lat: 27.1751, lng: 78.0421, icon: '🕌', color: '#2563EB' },
+            { id: 'goa1', name: 'Goa Beaches & Baga', type: 'hotel', lat: 15.5527, lng: 73.7517, icon: '🏖️', color: '#10B981' },
+            { id: 'jaipur1', name: 'Amber Fort & Hawa Mahal, Jaipur', type: 'museum', lat: 26.9855, lng: 75.8513, icon: '🏰', color: '#F59E0B' },
+            { id: 'kerala1', name: 'Kerala Backwaters & Munnar', type: 'hotel', lat: 9.4981, lng: 76.3388, icon: '🛶', color: '#10B981' },
+            { id: 'leh1', name: 'Pangong Tso Lake, Leh Ladakh', type: 'transport', lat: 33.7595, lng: 78.6674, icon: '🏔️', color: '#6366F1' },
+            { id: 'udaipur1', name: 'City Palace, Udaipur', type: 'hotel', lat: 24.5764, lng: 73.6835, icon: '🏰', color: '#2563EB' },
+            { id: 'delhi1', name: 'India Gate & Red Fort, New Delhi', type: 'museum', lat: 28.6129, lng: 77.2295, icon: '🏛️', color: '#EF4444' }
         ];
 
         // Store active layer groups
