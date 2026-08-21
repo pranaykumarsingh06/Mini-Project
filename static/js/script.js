@@ -57,15 +57,12 @@ document.addEventListener('DOMContentLoaded', () => {
         setupForgotValidation(forgotForm);
     }
 
-    // ===== Background Parallax Effect =====
-    const bgImg = document.querySelector('.page-bg img');
-    if (bgImg) {
-        window.addEventListener('mousemove', (e) => {
-            const x = (e.clientX / window.innerWidth - 0.5) * 8;
-            const y = (e.clientY / window.innerHeight - 0.5) * 8;
-            bgImg.style.transform = `scale(1.05) translate(${x}px, ${y}px)`;
-        });
-    }
+    // Initialize Destination Card Clicks across all pages
+    setupDestinationCards();
+    createAddTripModal();
+    renderDashboardTrips();
+    setupHomeSearch();
+    renderDestinationPage();
 });
 
 
@@ -964,39 +961,32 @@ function renderDestinationPage() {
 
 // 5. Setup click handlers on all destination cards across the site
 function setupDestinationCards() {
-    document.querySelectorAll('.dest-card, .ai-rec-card, .trip-item').forEach(card => {
+    document.querySelectorAll('.dest-card, .rec-card, .recently-card, .ai-rec-card, .ai-card, .trip-item, .package-card').forEach(card => {
         card.style.cursor = 'pointer';
         card.addEventListener('click', (e) => {
-            if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+            if (e.target.tagName === 'BUTTON' || e.target.closest('button') || e.target.tagName === 'A' || e.target.closest('a')) return;
 
             const titleEl = card.querySelector('h3, h4');
             if (titleEl) {
                 const titleText = titleEl.textContent.trim();
-                let cleanDest = 'Goa';
-                if (titleText.toLowerCase().includes('goa')) cleanDest = 'Goa';
-                else if (titleText.toLowerCase().includes('jaipur') || titleText.toLowerCase().includes('hawa')) cleanDest = 'Jaipur';
-                else if (titleText.toLowerCase().includes('kerala') || titleText.toLowerCase().includes('munnar') || titleText.toLowerCase().includes('backwater')) cleanDest = 'Kerala';
-                else if (titleText.toLowerCase().includes('leh') || titleText.toLowerCase().includes('ladakh')) cleanDest = 'Leh Ladakh';
-                else if (titleText.toLowerCase().includes('agra') || titleText.toLowerCase().includes('taj')) cleanDest = 'Agra';
-                else if (titleText.toLowerCase().includes('udaipur')) cleanDest = 'Udaipur';
-                else cleanDest = titleText.split(',')[0].trim();
+                let cleanDest = titleText;
+                
+                const lower = titleText.toLowerCase();
+                if (lower.includes('shimla')) cleanDest = 'Shimla';
+                else if (lower.includes('manali')) cleanDest = 'Manali';
+                else if (lower.includes('udaipur')) cleanDest = 'Udaipur';
+                else if (lower.includes('darjeeling')) cleanDest = 'Darjeeling';
+                else if (lower.includes('goa')) cleanDest = 'Goa';
+                else if (lower.includes('jaipur') || lower.includes('hawa') || lower.includes('amber')) cleanDest = 'Jaipur';
+                else if (lower.includes('kerala') || lower.includes('munnar') || lower.includes('backwater')) cleanDest = 'Kerala';
+                else if (lower.includes('leh') || lower.includes('ladakh')) cleanDest = 'Leh Ladakh';
+                else if (lower.includes('agra') || lower.includes('taj')) cleanDest = 'Agra';
+                else if (lower.includes('varanasi') || lower.includes('kashi')) cleanDest = 'Varanasi';
+                else if (lower.includes('rishikesh')) cleanDest = 'Rishikesh';
+                else if (lower.includes('amritsar')) cleanDest = 'Amritsar';
+                else cleanDest = titleText.split('(')[0].split(',')[0].trim();
 
-                const overlay = document.getElementById('addTripModalOverlay');
-                const destSelect = document.getElementById('tripDestSelect');
-                const destCustom = document.getElementById('tripDestCustom');
-                if (overlay && destSelect) {
-                    if (['Goa', 'Jaipur', 'Kerala', 'Leh Ladakh', 'Agra', 'Udaipur'].includes(cleanDest)) {
-                        destSelect.value = cleanDest;
-                        if (destCustom) destCustom.style.display = 'none';
-                    } else {
-                        destSelect.value = 'custom';
-                        if (destCustom) {
-                            destCustom.style.display = 'block';
-                            destCustom.value = cleanDest;
-                        }
-                    }
-                    overlay.classList.add('active');
-                }
+                window.location.href = `/count-places?place=${encodeURIComponent(cleanDest)}`;
             }
         });
     });
