@@ -529,6 +529,106 @@ const INDIAN_DESTINATIONS = {
             { name: 'Bagore Ki Haveli Folk Dance', desc: 'Evening Haveli show with traditional Dharohar dance and music.', img: '/static/images/dest_swiss.jpg' },
             { name: 'Monsoon Palace (Sajjangarh)', desc: 'Hilltop castle offering breathtaking panoramic views of Udaipur.', img: '/static/images/dest_bali.jpg' }
         ]
+    },
+    'varanasi': {
+        title: 'Varanasi — Kashi Vishwanath & Ghats',
+        heroImg: '/static/images/hero_amalfi.jpg',
+        description: 'Varanasi is India\'s spiritual capital and one of the world\'s oldest inhabited cities, famous for the sacred Kashi Vishwanath Temple and evening Ganga Aarti.',
+        bestSeason: 'October to March (Pleasant Spiritual Winter)',
+        weather: [{ icon: '☀️', temp: '24°C' }, { icon: '⛅', temp: '26°C' }, { icon: '☀️', temp: '23°C' }],
+        hotels: [
+            { name: 'BrijRama Palace Varanasi', rating: '⭐ 4.9 Rating', img: '/static/images/hero_amalfi.jpg' },
+            { name: 'Taj Nadesar Palace', rating: '⭐ 4.9 Rating', img: '/static/images/dest_paris.jpg' },
+            { name: 'Radisson Hotel Varanasi', rating: '⭐ 4.7 Rating', img: '/static/images/dest_santorini.jpg' }
+        ],
+        restaurants: [
+            { name: 'Kashi Chat Bhandar', rating: '★★★★★' },
+            { name: 'Dolphin Restaurant Ghat View', rating: '★★★★☆' },
+            { name: 'Blue Lassi Shop', rating: '★★★★★' }
+        ],
+        attractions: [
+            { name: 'Dashashwamedh Ghat Ganga Aarti', desc: 'Magical evening lamp ritual on the banks of river Ganga.', img: '/static/images/hero_amalfi.jpg' },
+            { name: 'Kashi Vishwanath Temple', desc: 'Sacred golden spire temple dedicated to Lord Shiva.', img: '/static/images/dest_santorini.jpg' },
+            { name: 'Sarnath Deer Park & Stupa', desc: 'Historic site where Lord Buddha preached his first sermon.', img: '/static/images/dest_kyoto.jpg' },
+            { name: 'Assi Ghat Sunrise Boat Ride', desc: 'Peaceful morning boat ride watching morning prayers.', img: '/static/images/bg_register.jpg' },
+            { name: 'Manikarnika Ghat Heritage Walk', desc: 'Ancient sacred ghat steeped in spiritual history.', img: '/static/images/bg_forgot.jpg' },
+            { name: 'BHU & Vishwanath Temple', desc: 'Sprawling green university campus and new Vishwanath temple.', img: '/static/images/dest_paris.jpg' }
+        ]
+    },
+    'rishikesh': {
+        title: 'Rishikesh & Haridwar — Yoga & Rafting',
+        heroImg: '/static/images/dest_swiss.jpg',
+        description: 'Rishikesh is the Yoga Capital of the World, nestled in Himalayan foothills on holy river Ganga, famous for river rafting, Laxman Jhula, and Beatles Ashram.',
+        bestSeason: 'September to May for river rafting and yoga retreats.',
+        weather: [{ icon: '☀️', temp: '22°C' }, { icon: '⛅', temp: '24°C' }, { icon: '☀️', temp: '21°C' }],
+        hotels: [
+            { name: 'Ananda in the Himalayas', rating: '⭐ 5.0 Rating', img: '/static/images/dest_swiss.jpg' },
+            { name: 'Taj Rishikesh Resort & Spa', rating: '⭐ 4.9 Rating', img: '/static/images/dest_paris.jpg' },
+            { name: 'Aloha On The Ganges', rating: '⭐ 4.8 Rating', img: '/static/images/dest_bali.jpg' }
+        ],
+        restaurants: [
+            { name: 'The Beatles Cafe', rating: '★★★★★' },
+            { name: 'Chotiwala Restaurant', rating: '★★★★☆' },
+            { name: 'Freedom Cafe Laxman Jhula', rating: '★★★★★' }
+        ],
+        attractions: [
+            { name: 'Laxman Jhula & Ram Jhula', desc: 'Iconic suspension bridges spanning the turquoise Ganga.', img: '/static/images/dest_swiss.jpg' },
+            { name: 'Ganga White Water Rafting', desc: 'Thrilling grade 3 & 4 rapids adventure down the river.', img: '/static/images/dest_venice.jpg' },
+            { name: 'Triveni Ghat Evening Aarti', desc: 'Soulful chanting and floating lamps at sacred Triveni Ghat.', img: '/static/images/hero_amalfi.jpg' },
+            { name: 'The Beatles Ashram', desc: 'Historic Maharishi Mahesh Yogi ashram painted with vibrant murals.', img: '/static/images/dest_bali.jpg' },
+            { name: 'Neer Garh Waterfalls', desc: 'Cascade waterfalls hidden amidst lush Himalayan forests.', img: '/static/images/bg_register.jpg' },
+            { name: 'Har Ki Pauri Haridwar', desc: 'Famous Haridwar ghat where holy Ganga enters the plains.', img: '/static/images/dest_santorini.jpg' }
+        ]
+    },
+    'amritsar': {
+        title: 'Amritsar — Golden Temple',
+        heroImg: '/static/images/hero_amalfi.jpg',
+        description: 'Amritsar is the spiritual heart of Sikhism, famous for the magnificent Golden Temple (Harmandir Sahib), Wagah Border ceremony, and delicious Punjabi food.',
+        bestSeason: 'October to March for cool pleasant weather.',
+        weather: [{ icon: '☀️', temp: '23°C' }, { icon: '⛅', temp: '25°C' }, { icon: '☀️', temp: '22°C' }],
+        hotels: [
+            { name: 'Taj Swarna Amritsar', rating: '⭐ 4.9 Rating', img: '/static/images/hero_amalfi.jpg' },
+            { name: 'Hyatt Regency Amritsar', rating: '⭐ 4.8 Rating', img: '/static/images/dest_paris.jpg' },
+            { name: 'Radisson Blu Amritsar', rating: '⭐ 4.7 Rating', img: '/static/images/dest_santorini.jpg' }
+        ],
+        restaurants: [
+            { name: 'Kesar Da Dhaba', rating: '★★★★★' },
+            { name: 'Beera Chicken House', rating: '★★★★☆' },
+            { name: 'Gurdas Ram Jalebi Wala', rating: '★★★★★' }
+        ],
+        attractions: [
+            { name: 'Golden Temple (Harmandir Sahib)', desc: 'Spiritual golden sanctuary surrounded by Amrit Sarovar lake.', img: '/static/images/hero_amalfi.jpg' },
+            { name: 'Wagah Border Beating Retreat', desc: 'Patriotic daily military ceremony at the India-Pakistan border.', img: '/static/images/dest_santorini.jpg' },
+            { name: 'Jallianwala Bagh Memorial', desc: 'Historic memorial park honoring national freedom fighters.', img: '/static/images/dest_kyoto.jpg' },
+            { name: 'Partition Museum Amritsar', desc: 'Moving museum documenting the 1947 partition history.', img: '/static/images/bg_forgot.jpg' },
+            { name: 'Gobindgarh Fort Light Show', desc: 'Historic 18th-century fort featuring 7D sound & light show.', img: '/static/images/dest_paris.jpg' },
+            { name: 'Golden Temple Langar Community Kitchen', desc: 'World\'s largest free community kitchen feeding 100,000 daily.', img: '/static/images/bg_register.jpg' }
+        ]
+    },
+    'darjeeling': {
+        title: 'Darjeeling — Tea Hills & Kanchenjunga',
+        heroImg: '/static/images/dest_bali.jpg',
+        description: 'Darjeeling is the Queen of Hill Stations in West Bengal, renowned for UNESCO Heritage Toy Train, sprawling tea gardens, and Kanchenjunga mountain views.',
+        bestSeason: 'March to May & October to December.',
+        weather: [{ icon: '⛅', temp: '16°C' }, { icon: '☀️', temp: '18°C' }, { icon: '☁️', temp: '15°C' }],
+        hotels: [
+            { name: 'Glenburn Tea Estate', rating: '⭐ 4.9 Rating', img: '/static/images/dest_bali.jpg' },
+            { name: 'Windamere Colonial Heritage Hotel', rating: '⭐ 4.8 Rating', img: '/static/images/dest_paris.jpg' },
+            { name: 'Mayfair Resort Darjeeling', rating: '⭐ 4.8 Rating', img: '/static/images/dest_santorini.jpg' }
+        ],
+        restaurants: [
+            { name: 'Glenary\'s Bakery & Pub', rating: '★★★★★' },
+            { name: 'Kunga Tibetan Momos', rating: '★★★★☆' },
+            { name: 'Keventers Rooftop Cafe', rating: '★★★★★' }
+        ],
+        attractions: [
+            { name: 'Tiger Hill Sunrise Point', desc: 'Watch golden sunrise over Mount Kanchenjunga & Mount Everest.', img: '/static/images/dest_bali.jpg' },
+            { name: 'Darjeeling Himalayan Toy Train Ride', desc: 'UNESCO Heritage steam locomotive train through tea hills.', img: '/static/images/dest_swiss.jpg' },
+            { name: 'Happy Valley Tea Estate Tour', desc: 'Walk through lush green tea gardens and taste fresh Darjeeling tea.', img: '/static/images/bg_register.jpg' },
+            { name: 'Batasia Loop War Memorial', desc: 'Spiral railway loop offering 360-degree views of Darjeeling town.', img: '/static/images/dest_kyoto.jpg' },
+            { name: 'Padmaja Naidu Himalayan Zoo', desc: 'High-altitude zoo home to Red Pandas and Snow Leopards.', img: '/static/images/dest_santorini.jpg' },
+            { name: 'Japanese Peace Pagoda', desc: 'Serene white stupa constructed under guidance of Nichidatsu Fujii.', img: '/static/images/hero_amalfi.jpg' }
+        ]
     }
 };
 
@@ -594,7 +694,11 @@ function createAddTripModal() {
                         <option value="Leh Ladakh">Leh Ladakh (Lakes & Passes)</option>
                         <option value="Agra">Agra (Taj Mahal & Fort)</option>
                         <option value="Udaipur">Udaipur (City of Lakes)</option>
-                        <option value="Shimla & Manali">Shimla & Manali (Himalayas)</option>
+                        <option value="Varanasi">Varanasi (Kashi Vishwanath & Ghats)</option>
+                        <option value="Rishikesh">Rishikesh & Haridwar (Ganga & Rafting)</option>
+                        <option value="Amritsar">Amritsar (Golden Temple)</option>
+                        <option value="Darjeeling">Darjeeling (Tea Hills & Kanchenjunga)</option>
+                        <option value="Shimla & Manali">Shimla & Manali (Snow Valley)</option>
                         <option value="custom">Other / Type Custom Place...</option>
                     </select>
                     <input type="text" id="tripDestCustom" class="settings-input" placeholder="Type destination name (e.g. Varanasi, Manali, Darjeeling)" style="display:none;">

@@ -101,7 +101,11 @@ def init_db():
                 ('Aarav Sharma', 'Jaipur Pink City', 28000, 'Jan 10 - Jan 15, 2027', 'Couple Romantic', 'Upcoming'),
                 ('Priya Patel', 'Kerala Backwaters', 45000, 'Feb 01 - Feb 08, 2027', 'Family Vacation', 'Confirmed'),
                 ('Rohan Gupta', 'Leh Ladakh Trek', 55000, 'May 10 - May 18, 2027', 'Solo Explorer', 'Upcoming'),
-                ('Voyage Traveler', 'Taj Mahal, Agra', 20000, 'Dec 01 - Dec 05, 2026', 'Family Vacation', 'Completed')
+                ('Voyage Traveler', 'Taj Mahal, Agra', 20000, 'Dec 01 - Dec 05, 2026', 'Family Vacation', 'Completed'),
+                ('Pranay Kumar', 'Varanasi Kashi Vishwanath', 22000, 'Nov 10 - Nov 14, 2026', 'Spiritual Tour', 'Upcoming'),
+                ('Priya Patel', 'Rishikesh Ganga Rafting', 25000, 'Mar 05 - Mar 10, 2027', 'Friends Adventure', 'Upcoming'),
+                ('Aarav Sharma', 'Amritsar Golden Temple', 18000, 'Jan 20 - Jan 24, 2027', 'Family Vacation', 'Upcoming'),
+                ('Rohan Gupta', 'Darjeeling Tea Hills', 32000, 'Apr 12 - Apr 18, 2027', 'Solo Explorer', 'Upcoming')
             ]
             for uname, dest, budget, dates, comp, status in demo_trips:
                 conn.execute('''
