@@ -30,7 +30,7 @@ def get_db():
 
 
 def init_db():
-    """Initialize the database with users table and seed default accounts."""
+    """Initialize the database with users, trips, and bookings tables and seed default accounts."""
     try:
         conn = get_db()
         conn.execute('''
@@ -44,13 +44,41 @@ def init_db():
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
+
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS trips (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_name TEXT NOT NULL,
+                destination TEXT NOT NULL,
+                budget INTEGER DEFAULT 25000,
+                travel_dates TEXT,
+                companion TEXT DEFAULT 'Family Vacation',
+                status TEXT DEFAULT 'Upcoming',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS bookings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_name TEXT NOT NULL,
+                destination TEXT NOT NULL,
+                booking_type TEXT DEFAULT 'Hotel & Flight',
+                amount INTEGER DEFAULT 18500,
+                status TEXT DEFAULT 'Confirmed',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
         
         # Default demo accounts
         pwd_hash = hashlib.sha256('password123'.encode()).hexdigest()
         demo_users = [
             ('Pranay Kumar', 'pranaykrsingh03@gmail.com', pwd_hash, 'India', '+91 9876543210'),
             ('Voyage Traveler', 'user@voyage.com', pwd_hash, 'India', '+91 9999999999'),
-            ('Admin User', 'admin@voyage.com', pwd_hash, 'India', '+91 8888888888')
+            ('Admin User', 'admin@voyage.com', pwd_hash, 'India', '+91 8888888888'),
+            ('Aarav Sharma', 'aarav.sharma@gmail.com', pwd_hash, 'India', '+91 9812345678'),
+            ('Priya Patel', 'priya.patel@yahoo.com', pwd_hash, 'India', '+91 9723456789'),
+            ('Rohan Gupta', 'rohan.gupta@outlook.com', pwd_hash, 'India', '+91 9634567890')
         ]
         for name, email, pwd, country, phone in demo_users:
             conn.execute('''
@@ -62,6 +90,38 @@ def init_db():
             conn.execute('''
                 UPDATE users SET password = ? WHERE email = ?
             ''', (pwd, email))
+
+        # Seed default trips if empty
+        trip_count = conn.execute('SELECT COUNT(*) FROM trips').fetchone()[0]
+        if trip_count == 0:
+            demo_trips = [
+                ('Pranay Kumar', 'Goa Beaches', 35000, 'Dec 15 - Dec 20, 2026', 'Friends Adventure', 'Upcoming'),
+                ('Aarav Sharma', 'Jaipur Pink City', 28000, 'Jan 10 - Jan 15, 2027', 'Couple Romantic', 'Upcoming'),
+                ('Priya Patel', 'Kerala Backwaters', 45000, 'Feb 01 - Feb 08, 2027', 'Family Vacation', 'Confirmed'),
+                ('Rohan Gupta', 'Leh Ladakh Trek', 55000, 'May 10 - May 18, 2027', 'Solo Explorer', 'Upcoming'),
+                ('Voyage Traveler', 'Taj Mahal, Agra', 20000, 'Dec 01 - Dec 05, 2026', 'Family Vacation', 'Completed')
+            ]
+            for uname, dest, budget, dates, comp, status in demo_trips:
+                conn.execute('''
+                    INSERT INTO trips (user_name, destination, budget, travel_dates, companion, status)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                ''', (uname, dest, budget, dates, comp, status))
+
+        # Seed default bookings if empty
+        booking_count = conn.execute('SELECT COUNT(*) FROM bookings').fetchone()[0]
+        if booking_count == 0:
+            demo_bookings = [
+                ('Pranay Kumar', 'Taj Exotica Goa', 'Hotel & Flight', 32000, 'Confirmed'),
+                ('Aarav Sharma', 'Rambagh Palace Jaipur', 'Resort Stay', 26000, 'Confirmed'),
+                ('Priya Patel', 'Kumarakom Lake Resort Kerala', 'Houseboat & Resort', 42000, 'Confirmed'),
+                ('Rohan Gupta', 'The Grand Dragon Leh', 'Luxury Hotel & Bike', 50000, 'Pending'),
+                ('Admin User', 'Oberoi Amarvilas Agra', 'Heritage Suite', 29000, 'Confirmed')
+            ]
+            for uname, dest, btype, amt, status in demo_bookings:
+                conn.execute('''
+                    INSERT INTO bookings (user_name, destination, booking_type, amount, status)
+                    VALUES (?, ?, ?, ?, ?)
+                ''', (uname, dest, btype, amt, status))
             
         conn.commit()
         conn.close()
@@ -320,6 +380,169 @@ def check_email():
     if existing:
         return jsonify({'available': False, 'message': 'Email is already registered.'})
     return jsonify({'available': True, 'message': 'Email is available.'})
+
+
+# ===== ADMIN PANEL ROUTES =====
+
+@app.route('/admin')
+def admin_panel():
+    """Render the Admin Panel dashboard."""
+    conn = get_db()
+    
+    users = conn.execute('SELECT * FROM users ORDER BY id DESC').fetchall()
+    trips = conn.execute('SELECT * FROM trips ORDER BY id DESC').fetchall()
+    bookings = conn.execute('SELECT * FROM bookings ORDER BY id DESC').fetchall()
+    
+    total_users = len(users)
+    total_trips = len(trips)
+    total_bookings = len(bookings)
+    
+    # Calculate revenue from bookings and total managed trip budget
+    total_booking_revenue = sum(b['amount'] for b in bookings if b['amount'])
+    total_trip_budget = sum(t['budget'] for t in trips if t['budget'])
+    total_revenue = total_booking_revenue + total_trip_budget
+
+    conn.close()
+
+    return render_template(
+        'admin.html',
+        users=users,
+        trips=trips,
+        bookings=bookings,
+        total_users=total_users,
+        total_trips=total_trips,
+        total_bookings=total_bookings,
+        total_revenue=total_revenue
+    )
+
+
+@app.route('/admin/user/add', methods=['POST'])
+def admin_add_user():
+    """Add new user from admin panel."""
+    full_name = request.form.get('full_name', '').strip()
+    email = request.form.get('email', '').strip()
+    password = request.form.get('password', 'password123')
+    country = request.form.get('country', 'India').strip()
+    phone = request.form.get('phone', '').strip()
+
+    if not full_name or not email:
+        flash('Full Name and Email are required.', 'error')
+        return redirect(url_for('admin_panel'))
+
+    pwd_hash = hash_password(password)
+
+    try:
+        conn = get_db()
+        conn.execute(
+            'INSERT INTO users (full_name, email, password, country, phone) VALUES (?, ?, ?, ?, ?)',
+            (full_name, email, pwd_hash, country, phone)
+        )
+        conn.commit()
+        conn.close()
+        flash(f'User "{full_name}" added successfully.', 'success')
+    except Exception as e:
+        flash('Error adding user: Email may already exist.', 'error')
+
+    return redirect(url_for('admin_panel'))
+
+
+@app.route('/admin/user/edit/<int:user_id>', methods=['POST'])
+def admin_edit_user(user_id):
+    """Edit existing user details from admin panel."""
+    full_name = request.form.get('full_name', '').strip()
+    email = request.form.get('email', '').strip()
+    country = request.form.get('country', '').strip()
+    phone = request.form.get('phone', '').strip()
+
+    try:
+        conn = get_db()
+        conn.execute(
+            'UPDATE users SET full_name = ?, email = ?, country = ?, phone = ? WHERE id = ?',
+            (full_name, email, country, phone, user_id)
+        )
+        conn.commit()
+        conn.close()
+        flash('User details updated successfully.', 'success')
+    except Exception as e:
+        flash('Failed to update user details.', 'error')
+
+    return redirect(url_for('admin_panel'))
+
+
+@app.route('/admin/user/delete/<int:user_id>', methods=['POST'])
+def admin_delete_user(user_id):
+    """Delete user from admin panel."""
+    try:
+        conn = get_db()
+        conn.execute('DELETE FROM users WHERE id = ?', (user_id,))
+        conn.commit()
+        conn.close()
+        flash('User deleted successfully.', 'success')
+    except Exception as e:
+        flash('Failed to delete user.', 'error')
+
+    return redirect(url_for('admin_panel'))
+
+
+@app.route('/admin/trip/add', methods=['POST'])
+def admin_add_trip():
+    """Add new trip from admin panel."""
+    user_name = request.form.get('user_name', 'Traveler').strip()
+    destination = request.form.get('destination', '').strip()
+    budget = request.form.get('budget', 25000)
+    travel_dates = request.form.get('travel_dates', 'Dec 2026').strip()
+    companion = request.form.get('companion', 'Family Vacation').strip()
+
+    if not destination:
+        flash('Destination name is required.', 'error')
+        return redirect(url_for('admin_panel'))
+
+    try:
+        conn = get_db()
+        conn.execute(
+            'INSERT INTO trips (user_name, destination, budget, travel_dates, companion, status) VALUES (?, ?, ?, ?, ?, ?)',
+            (user_name, destination, int(budget), travel_dates, companion, 'Upcoming')
+        )
+        conn.commit()
+        conn.close()
+        flash(f'Trip to "{destination}" added successfully.', 'success')
+    except Exception as e:
+        flash('Failed to add trip.', 'error')
+
+    return redirect(url_for('admin_panel'))
+
+
+@app.route('/admin/trip/delete/<int:trip_id>', methods=['POST'])
+def admin_delete_trip(trip_id):
+    """Delete trip record from admin panel."""
+    try:
+        conn = get_db()
+        conn.execute('DELETE FROM trips WHERE id = ?', (trip_id,))
+        conn.commit()
+        conn.close()
+        flash('Trip record deleted successfully.', 'success')
+    except Exception as e:
+        flash('Failed to delete trip record.', 'error')
+
+    return redirect(url_for('admin_panel'))
+
+
+@app.route('/admin/api/stats')
+def admin_api_stats():
+    """API endpoint returning admin dashboard stats as JSON."""
+    conn = get_db()
+    users_count = conn.execute('SELECT COUNT(*) FROM users').fetchone()[0]
+    trips_count = conn.execute('SELECT COUNT(*) FROM trips').fetchone()[0]
+    bookings_count = conn.execute('SELECT COUNT(*) FROM bookings').fetchone()[0]
+    total_rev = conn.execute('SELECT SUM(amount) FROM bookings').fetchone()[0] or 0
+    conn.close()
+
+    return jsonify({
+        'users': users_count,
+        'trips': trips_count,
+        'bookings': bookings_count,
+        'total_revenue': total_rev
+    })
 
 
 if __name__ == '__main__':

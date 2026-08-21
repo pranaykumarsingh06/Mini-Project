@@ -30,6 +30,7 @@
             <div style="display:flex; align-items:center; gap:10px;">
                 <span style="color:white; font-weight:600; font-size:0.9rem;">Hi, {{ session.get('user_name') }}</span>
                 <a href="{{ url_for('dashboard') }}" class="btn-nav-primary">Dashboard</a>
+                <a href="{{ url_for('admin_panel') }}" style="color:#60A5FA; text-decoration:none; font-size:0.85rem; font-weight:600;">Admin Panel</a>
                 <a href="{{ url_for('logout') }}" style="color:#FCA5A5; text-decoration:none; font-size:0.85rem; font-weight:600;">Logout</a>
             </div>
             {% else %}
