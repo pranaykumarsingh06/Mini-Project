@@ -423,25 +423,25 @@
 
                 <!-- Nearby Search -->
                 <div class="map-card search-group">
-                    <h3 style="margin-bottom:0;">Nearby Search</h3>
+                    <h3 style="margin-bottom:0;">Search India Maps</h3>
                     <div class="search-input-wrapper">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                        <input type="text" placeholder="Search..." id="mapPoiSearch">
+                        <input type="text" placeholder="Search any city (e.g. Goa, Agra, Jaipur)..." id="mapSearchInput" onkeyup="if(event.key==='Enter') searchIndiaMap(this.value)">
                     </div>
-                    <select class="search-select">
-                        <option>All Areas</option>
-                        <option>South Mumbai</option>
-                        <option>Bandra</option>
+                    <select class="search-select" onchange="searchIndiaMap(this.value)">
+                        <option value="India">All India Destinations</option>
+                        <option value="Taj Mahal Agra">Taj Mahal, Agra</option>
+                        <option value="Goa Beaches">Goa Beaches & Baga</option>
+                        <option value="Jaipur Amber Fort">Jaipur Pink City</option>
+                        <option value="Kerala Backwaters">Kerala Backwaters</option>
+                        <option value="Leh Ladakh Pangong">Leh Ladakh Lake</option>
+                        <option value="Udaipur Lake Palace">Udaipur Lakes</option>
                     </select>
                 </div>
 
                 <!-- Route Planner -->
                 <div class="map-card search-group">
                     <h3>Route Planner</h3>
-                    <div class="route-input-group">
-                        <div class="route-line"></div>
-                        <div class="route-row">
-                            <div class="route-dot route-dot--start"></div>
                     <div class="route-input-group">
                         <div class="route-line"></div>
                         <div class="route-row">
@@ -453,112 +453,34 @@
                             <input type="text" class="route-input" value="Agra (Taj Mahal), India" id="routeEnd">
                         </div>
                     </div>
-                    <select class="search-select" style="margin-top:4px;">
-                        <option>India Route Planner (Delhi to Agra Taj Mahal)</option>
-                        <option>Golden Triangle Express (Delhi-Agra-Jaipur)</option>
-                        <option>Coastal Route (Goa Beach Drive)</option>
-                    </select>
+                    <button style="width:100%; margin-top:8px; padding:0.7rem; background:#2563EB; color:white; border:none; border-radius:8px; font-weight:700; cursor:pointer;" onclick="planIndiaRoute()">
+                        📍 Show Route on Google Map
+                    </button>
                 </div>
             </div>
 
-            <!-- Real Leaflet Map -->
-            <div class="map-view-container">
-                <!-- Floating top search bar -->
-                <div class="map-search-overlay">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                    <span>Google Maps India — All Destinations & Sightseeing</span>
+            <!-- Live Google Maps India Container -->
+            <div class="map-view-container" style="position:relative; width:100%; height:100%; min-height:550px; border-radius:18px; overflow:hidden; border:1px solid #CBD5E1;">
+                <div class="map-search-overlay" style="position:absolute; top:16px; left:16px; z-index:10; background:white; padding:8px 16px; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.15); display:flex; align-items:center; gap:8px; font-weight:700; color:#1E293B; border:1px solid #E2E8F0;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <span>Google Maps India — Live Sightseeing & Routes</span>
                 </div>
-                <div id="leafletMap"></div>
+                <iframe id="mainGoogleMap" src="https://maps.google.com/maps?q=India+Taj+Mahal+Agra+Goa+Jaipur+Kerala+Leh&t=&z=5&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0; min-height:550px; width:100%;" allowfullscreen="" loading="lazy"></iframe>
             </div>
         </div>
     </main>
 
-    <!-- Leaflet.js script -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <script>
-        // Initialize Map focusing on All-India Coordinates
-        const map = L.map('leafletMap', {
-            zoomControl: false // custom placement below
-        }).setView([22.5937, 78.9629], 5); // Centered on India
+        function searchIndiaMap(city) {
+            if (!city) return;
+            document.getElementById('mainGoogleMap').src = 'https://maps.google.com/maps?q=' + encodeURIComponent(city + ', India') + '&t=&z=10&ie=UTF8&iwloc=&output=embed';
+        }
 
-        // Add standard zoom control to bottom right
-        L.control.zoom({
-            position: 'bottomright'
-        }).addTo(map);
-
-        // Add beautiful premium map tiles (CartoDB Positron for light design)
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
-        }).addTo(map);
-
-        // Major POIs across India
-        const poiData = [
-            { id: 'agra1', name: 'Taj Mahal, Agra', type: 'museum', lat: 27.1751, lng: 78.0421, icon: '🕌', color: '#2563EB' },
-            { id: 'goa1', name: 'Goa Beaches & Baga', type: 'hotel', lat: 15.5527, lng: 73.7517, icon: '🏖️', color: '#10B981' },
-            { id: 'jaipur1', name: 'Amber Fort & Hawa Mahal, Jaipur', type: 'museum', lat: 26.9855, lng: 75.8513, icon: '🏰', color: '#F59E0B' },
-            { id: 'kerala1', name: 'Kerala Backwaters & Munnar', type: 'hotel', lat: 9.4981, lng: 76.3388, icon: '🛶', color: '#10B981' },
-            { id: 'leh1', name: 'Pangong Tso Lake, Leh Ladakh', type: 'transport', lat: 33.7595, lng: 78.6674, icon: '🏔️', color: '#6366F1' },
-            { id: 'udaipur1', name: 'City Palace, Udaipur', type: 'hotel', lat: 24.5764, lng: 73.6835, icon: '🏰', color: '#2563EB' },
-            { id: 'delhi1', name: 'India Gate & Red Fort, New Delhi', type: 'museum', lat: 28.6129, lng: 77.2295, icon: '🏛️', color: '#EF4444' }
-        ];
-
-        // Store active layer groups
-        const markerLayers = {};
-
-        // Generate markers
-        poiData.forEach(poi => {
-            // Premium custom div icon matching mockup design
-            const markerHtml = `
-                <div class="custom-marker" style="background: ${poi.color}">
-                    <span>${poi.icon}</span>
-                </div>
-            `;
-            
-            const customIcon = L.divIcon({
-                html: markerHtml,
-                className: '',
-                iconSize: [32, 32],
-                iconAnchor: [16, 32],
-                popupAnchor: [0, -32]
-            });
-
-            const marker = L.marker([poi.lat, poi.lng], { icon: customIcon })
-                            .bindPopup(`<strong>${poi.name}</strong><br>${poi.type.toUpperCase()}`);
-
-            if (!markerLayers[poi.type]) {
-                markerLayers[poi.type] = L.layerGroup().addTo(map);
-            }
-            marker.addTo(markerLayers[poi.type]);
-        });
-
-        // POI Switches event listeners
-        const switches = {
-            hotel: document.getElementById('hotelSwitch'),
-            restaurant: document.getElementById('restaurantSwitch'),
-            museum: document.getElementById('museumSwitch'),
-            transport: document.getElementById('transportSwitch')
-        };
-
-        Object.keys(switches).forEach(key => {
-            switches[key].addEventListener('change', (e) => {
-                if (e.target.checked) {
-                    map.addLayer(markerLayers[key]);
-                } else {
-                    map.removeLayer(markerLayers[key]);
-                }
-            });
-        });
-
-        function toggleAllPOIs(state) {
-            Object.keys(switches).forEach(key => {
-                switches[key].checked = state;
-                if (state) {
-                    map.addLayer(markerLayers[key]);
-                } else {
-                    map.removeLayer(markerLayers[key]);
-                }
-            });
+        function planIndiaRoute() {
+            const start = document.getElementById('routeStart').value;
+            const end = document.getElementById('routeEnd').value;
+            document.getElementById('mainGoogleMap').src = 'https://maps.google.com/maps?saddr=' + encodeURIComponent(start) + '&daddr=' + encodeURIComponent(end) + '&ie=UTF8&iwloc=&output=embed';
         }
     </script>
 </body>
