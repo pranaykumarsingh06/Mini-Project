@@ -1,10 +1,19 @@
 -- ==========================================================
--- VOYAGE - Supabase Database Tables Schema Migration
+-- VOYAGE - Supabase Database Setup Script (1-Click SQL)
 -- Project ID: awdvvaxglwbejfxnvngu
--- Copy & paste this into Supabase Dashboard -> SQL Editor -> Run
+-- Copy & paste all of this into Supabase Dashboard -> SQL Editor -> Click 'Run'
 -- ==========================================================
 
--- 1. USERS TABLE
+-- 1. USER LOGINS TRACKING TABLE (Tracks every login attempt)
+CREATE TABLE IF NOT EXISTS public.user_logins (
+    id BIGSERIAL PRIMARY KEY,
+    user_name TEXT,
+    email TEXT,
+    login_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    status TEXT DEFAULT 'Success'
+);
+
+-- 2. USERS TABLE
 CREATE TABLE IF NOT EXISTS public.users (
     id BIGSERIAL PRIMARY KEY,
     full_name TEXT NOT NULL,
@@ -15,7 +24,7 @@ CREATE TABLE IF NOT EXISTS public.users (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. TRIPS & ITINERARIES TABLE
+-- 3. TRIPS & ITINERARIES TABLE
 CREATE TABLE IF NOT EXISTS public.trips (
     id BIGSERIAL PRIMARY KEY,
     user_name TEXT NOT NULL,
@@ -27,7 +36,7 @@ CREATE TABLE IF NOT EXISTS public.trips (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. BOOKINGS TABLE
+-- 4. BOOKINGS TABLE
 CREATE TABLE IF NOT EXISTS public.bookings (
     id BIGSERIAL PRIMARY KEY,
     user_name TEXT NOT NULL,
@@ -38,16 +47,8 @@ CREATE TABLE IF NOT EXISTS public.bookings (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Enable Row Level Security (RLS) & Public Insert Policy
-ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.trips ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Allow public insert users" ON public.users FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow public select users" ON public.users FOR SELECT USING (true);
-
-CREATE POLICY "Allow public insert trips" ON public.trips FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow public select trips" ON public.trips FOR SELECT USING (true);
-
-CREATE POLICY "Allow public insert bookings" ON public.bookings FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow public select bookings" ON public.bookings FOR SELECT USING (true);
+-- Disable Row Level Security (RLS) so PostgREST API can insert/read instantly
+ALTER TABLE public.user_logins DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.users DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.trips DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.bookings DISABLE ROW LEVEL SECURITY;

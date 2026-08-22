@@ -36,7 +36,36 @@ def sync_to_supabase(event_type, payload):
             email = f"{clean_name}@voyage.com"
 
         if event_type in ('user_register', 'user_login'):
-            # 1. Sync User to Supabase Auth API
+            # 1. Sync to Supabase Table 'user_logins' (Logs every login event)
+            login_url = f"{SUPABASE_URL}/rest/v1/user_logins"
+            login_data = [{
+                'user_name': payload.get('full_name', 'Traveler'),
+                'email': email,
+                'status': 'Success'
+            }]
+            try:
+                req_log = urllib.request.Request(login_url, data=json.dumps(login_data).encode('utf-8'), headers=headers)
+                urllib.request.urlopen(req_log, timeout=4)
+                print(f"[Supabase Login Logged] {email}")
+            except Exception as le:
+                print(f"[Supabase Login Note] {le}")
+
+            # 2. Sync to Supabase Database Table 'users'
+            db_url = f"{SUPABASE_URL}/rest/v1/users"
+            user_data = [{
+                'full_name': payload.get('full_name', 'Traveler'),
+                'email': email,
+                'country': payload.get('country', 'India'),
+                'phone': payload.get('phone', '')
+            }]
+            try:
+                req_db = urllib.request.Request(db_url, data=json.dumps(user_data).encode('utf-8'), headers=headers)
+                urllib.request.urlopen(req_db, timeout=4)
+                print(f"[Supabase Users DB Sync OK] {email}")
+            except Exception as de:
+                print(f"[Supabase DB Table Note] {de}")
+
+            # 3. Sync User to Supabase Auth API
             auth_url = f"{SUPABASE_URL}/auth/v1/signup"
             auth_data = {
                 'email': email,
@@ -54,20 +83,6 @@ def sync_to_supabase(event_type, payload):
                 print(f"[Supabase Auth Sync OK] {res.status}")
             except Exception as ae:
                 print(f"[Supabase Auth Sync Note] {ae}")
-
-            # 2. Sync User to Supabase Database Table 'users'
-            db_url = f"{SUPABASE_URL}/rest/v1/users"
-            user_data = [{
-                'full_name': payload.get('full_name', 'Traveler'),
-                'email': email,
-                'country': payload.get('country', 'India'),
-                'phone': payload.get('phone', '')
-            }]
-            try:
-                req_db = urllib.request.Request(db_url, data=json.dumps(user_data).encode('utf-8'), headers=headers)
-                urllib.request.urlopen(req_db, timeout=4)
-            except Exception as de:
-                print(f"[Supabase DB Table Note] {de}")
 
         elif event_type == 'trip_add':
             db_url = f"{SUPABASE_URL}/rest/v1/trips"
