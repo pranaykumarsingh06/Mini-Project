@@ -7,17 +7,30 @@
 ## 📌 OVERVIEW
 
 This document presents the complete Unified Modeling Language (UML) and structured design diagrams for the **VOYAGE Travel Web Application**:
-1. **Use Case Diagram** — Defines system boundary, user interactions, actor roles, and administrative functions.
-2. **Entity-Relationship (ER) Diagram** — Mappings, schemas, attributes, primary/foreign keys, and relational cardinalities.
-3. **Data Flow Diagrams (DFD)** — Context Diagram (Level 0) and Process Decomposition Diagram (Level 1).
+1. **System Architecture Diagram** — Client, Edge, Backend WSGI, SQLite, and Supabase Cloud layers.
+2. **Use Case Diagram** — System boundary, user interactions, actor roles, and administrative functions.
+3. **Entity-Relationship (ER) Diagram** — Mappings, schemas, attributes, primary/foreign keys, and relational cardinalities.
+4. **Data Flow Diagrams (DFD)** — Context Diagram (Level 0) and Process Decomposition Diagram (Level 1).
+5. **Sequence Diagram** — User authentication & async Supabase cloud sync execution flow.
+6. **Deployment Diagram** — Physical distribution of client browser, Vercel serverless edge runtime, and Supabase database nodes.
 
 ---
 
-## 1. USE CASE DIAGRAM
+## 1. SYSTEM ARCHITECTURE DIAGRAM
 
-The Use Case Diagram highlights the interaction between system actors (**General Traveler**, **Registered User**, **Admin User**, **Supabase Backend**) and system capabilities.
+```mermaid
+graph TD
+    User[Client Browser / Mobile Device] -->|1. HTTPS Request| Edge[Vercel Serverless Edge CDN]
+    Edge -->|2. WSGI Routing| Flask[Python Flask Backend app.py]
+    Flask -->|3. Local Queries| SQLite[(Local SQLite Database voyage.db)]
+    Flask -->|4. Async REST API Sync| Supabase[(Supabase PostgreSQL Cloud awdvvaxglwbejfxnvngu)]
+    User -->|5. Leaflet Map Tiles| OSM[OpenStreetMap Tile Engine]
+    User -->|6. Satellite iFrame| Google[Google Maps Embed API]
+```
 
-### 1.1 Mermaid Use Case Visualizer
+---
+
+## 2. USE CASE DIAGRAM
 
 ```mermaid
 graph TD
@@ -67,27 +80,9 @@ graph TD
     UC13 --> Actor4
 ```
 
-### 1.2 Use Case Specification Table
-
-| Use Case ID | Use Case Name | Primary Actor | Description | Pre-conditions |
-| :--- | :--- | :--- | :--- | :--- |
-| **UC-01** | Explore Destinations | Guest / User | View top 6 sightseeing spots, weather, best season, hotels, and restaurants per city. | None |
-| **UC-02** | Interactive Route Planner | Guest / User | Compute travel route and distance between two Indian cities on map. | Open `/map` page |
-| **UC-03** | User Registration | Guest | Create new account with email, full name, password, country, and phone. | Form filled |
-| **UC-04** | User Sign In | Guest / User | Authenticate user using email/name and password hash verification. | Valid account |
-| **UC-05** | Plan Trip & Budget | Registered User | Set destination, budget in ₹ INR, travel dates, and companion style. | Logged in |
-| **UC-06** | Manage Reservation | Registered User | Customize seat preference, meal selection, or request cancellation. | Active booking |
-| **UC-07** | Download E-Ticket | Registered User | View printable E-Ticket with PNR, flight details, and barcode. | Active booking |
-| **UC-08** | Admin Governance | Admin User | Access `/admin` dashboard to add/edit/delete users, trips, and view stats. | Logged in as `pranaykrsingh03@gmail.com` |
-| **UC-09** | Cloud Sync | System | Asynchronously push logins, users, trips, and bookings to Supabase PostgreSQL. | Action executed |
-
 ---
 
-## 2. ENTITY-RELATIONSHIP (ER) DIAGRAM
-
-The ER Diagram illustrates the database structure, logical schema attributes, primary keys (`PK`), foreign keys (`FK`), and cardinalities across local SQLite3 and Supabase PostgreSQL backend.
-
-### 2.1 Mermaid ER Diagram
+## 3. ENTITY-RELATIONSHIP (ER) DIAGRAM
 
 ```mermaid
 erDiagram
@@ -145,34 +140,11 @@ erDiagram
     }
 ```
 
-### 2.2 Relational Schema Definitions
-
-1. **`USERS` Table**:
-   - `id` (PK, AUTO_INCREMENT): Unique user identifier.
-   - `full_name` (NOT NULL): User's display name.
-   - `email` (UNIQUE, NOT NULL): Account login email address.
-   - `password` (NOT NULL): SHA-256 encrypted password hash.
-   - `country`, `phone`: Contact metadata.
-   - `created_at`: Account registration timestamp.
-
-2. **`USER_LOGINS` Table**:
-   - `id` (PK), `user_name`, `email`, `login_time`, `status`.
-
-3. **`TRIPS` Table**:
-   - `id` (PK), `user_name`, `destination`, `budget` (₹ INR), `travel_dates`, `companion`, `status`, `created_at`.
-
-4. **`BOOKINGS` Table**:
-   - `id` (PK), `user_name`, `destination`, `booking_type` (*Hotel & Flight / Package*), `amount` (₹ INR), `status`, `created_at`.
-
 ---
 
-## 3. DATA FLOW DIAGRAMS (DFD)
+## 4. DATA FLOW DIAGRAMS (DFD)
 
-Data Flow Diagrams map the flow of data through the VOYAGE system, showing inputs, processes, outputs, and data stores.
-
-### 3.1 DFD Level 0 (Context Diagram)
-
-The Level 0 DFD defines the entire system boundary, external entities (**Traveler**, **Admin**, **Supabase Service**), and top-level data flows.
+### 4.1 DFD Level 0 (Context Diagram)
 
 ```mermaid
 graph LR
@@ -183,18 +155,16 @@ graph LR
     VoyageSystem -->|4. Display Itineraries, Sightseeing & Weather| User
     VoyageSystem -->|5. PDF E-Tickets & Boarding Passes| User
 
-    Admin[🛡️ Admin User] -->|6. Admin Credentials & User Management Commands| VoyageSystem
+    Admin[🛡️ Admin User] -->|6. Admin Credentials & User Commands| VoyageSystem
     VoyageSystem -->|7. Revenue Stats, User Lists & Trip Summaries| Admin
 
-    VoyageSystem -->|8. Sync Logins, Users, Trips & Bookings API Payload| Supabase[⚡ Supabase Cloud Backend awdvvaxglwbejfxnvngu]
+    VoyageSystem -->|8. Sync Logins, Users, Trips & Bookings Payload| Supabase[⚡ Supabase Cloud Backend awdvvaxglwbejfxnvngu]
     Supabase -->|9. Sync Confirmation Status| VoyageSystem
 ```
 
 ---
 
-### 3.2 DFD Level 1 (Process Decomposition Diagram)
-
-The Level 1 DFD decomposes the system into 5 primary operational sub-processes.
+### 4.2 DFD Level 1 (Process Decomposition Diagram)
 
 ```mermaid
 graph TD
@@ -240,14 +210,61 @@ graph TD
 
 ---
 
-## 4. SUMMARY OF DIAGRAM COMPLIANCE
+## 5. SEQUENCE DIAGRAM
 
-| Diagram Type | Representation | Purpose | Verification Status |
-| :--- | :--- | :--- | :---: |
-| **Use Case Diagram** | UML / Mermaid Flow | Illustrates actor interactions, system boundaries, and security rules. | ✅ Verified |
-| **ER Diagram** | Entity Relational Notation | Maps database tables, primary keys, foreign relations, and schema fields. | ✅ Verified |
-| **DFD Level 0** | Context Data Flow | High-level data exchange between User, Admin, System, and Supabase Backend. | ✅ Verified |
-| **DFD Level 1** | Process Decomposition | Detailed 5-process data transformations and DB read/write interactions. | ✅ Verified |
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as 👤 Traveler
+    participant Browser as 🌐 Client Browser
+    participant Flask as ⚙️ Flask Backend (app.py)
+    participant SQLite as 🗄️ SQLite DB (voyage.db)
+    participant Supabase as ⚡ Supabase Cloud DB
+
+    User->>Browser: Enters Email & Password
+    Browser->>Flask: POST /login (form data)
+    Flask->>Flask: Compute SHA-256 Hash
+    Flask->>SQLite: SELECT * FROM users WHERE email = ?
+    SQLite-->>Flask: Return User Record
+    Flask->>Flask: Set Session Variables (user_id, user_name)
+    
+    par Async Cloud Synchronization
+        Flask->>Supabase: POST /rest/v1/user_logins (user_name, email, status)
+        Supabase-->>Flask: 201 Created Status
+    and Local Response
+        Flask-->>Browser: Redirect to /dashboard
+    end
+    
+    Browser-->>User: Render Dashboard Page
+```
+
+---
+
+## 6. DEPLOYMENT DIAGRAM
+
+```mermaid
+graph LR
+    subgraph Client Node
+        Browser[Web Browser Chrome / Firefox / Safari / Mobile]
+    end
+
+    subgraph Vercel Edge Serverless Cloud
+        CDN[Edge CDN]
+        Lambda[Python WSGI Runtime]
+    end
+
+    subgraph External Cloud Services
+        SupabaseDB[Supabase PostgreSQL DB awdvvaxglwbejfxnvngu]
+        SupabaseAuth[Supabase Auth Service]
+        OSMServer[OpenStreetMap Tile Server]
+    end
+
+    Browser -->|HTTPS| CDN
+    CDN -->|Invoke| Lambda
+    Lambda -->|REST API HTTPS| SupabaseDB
+    Lambda -->|Auth HTTPS| SupabaseAuth
+    Browser -->|Tile HTTPS| OSMServer
+```
 
 ---
 *Diagram Artifact Generated for VOYAGE Project Repository (`pranaykumarsingh06/Mini-Project`).*
