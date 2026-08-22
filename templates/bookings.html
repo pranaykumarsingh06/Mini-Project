@@ -3,14 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Bookings - Manage your flights, hotels, and vacation packages.">
-    <title>Voyage — Bookings</title>
+    <meta name="description" content="Bookings - Manage your flights, hotels, and vacation packages with Voyage.">
+    <title>Voyage — My Bookings & Flights</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <style>
+        .bookings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
         .bookings-tabs {
             display: flex;
             gap: 1.5rem;
@@ -29,47 +36,46 @@
             position: relative;
             transition: all 0.2s;
         }
-        .bookings-tab:hover {
-            color: #2563EB;
-        }
-        .bookings-tab.active {
-            color: #2563EB;
-        }
+        .bookings-tab:hover { color: #2563EB; }
+        .bookings-tab.active { color: #2563EB; }
         .bookings-tab.active::after {
             content: '';
             position: absolute;
-            bottom: -4px;
-            left: 0;
-            right: 0;
+            bottom: -4px; left: 0; right: 0;
             height: 3px;
             background: #2563EB;
             border-radius: 2px;
         }
 
-        .tab-panel {
-            display: none;
-        }
+        .tab-panel { display: none; }
         .tab-panel.active {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 1.25rem;
         }
 
+        @media (max-width: 900px) {
+            .tab-panel.active { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .tab-panel.active { grid-template-columns: 1fr; }
+        }
+
         /* Booking Cards */
         .booking-card {
             background: white;
-            border-radius: 14px;
+            border-radius: 16px;
             border: 1px solid #E2E8F0;
             padding: 1.25rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            transition: all 0.25s ease;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
         .booking-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.07);
         }
         .booking-card__header {
             display: flex;
@@ -83,11 +89,11 @@
             gap: 10px;
         }
         .airline-logo {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            background: #FEE2E2;
-            color: #DC2626;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: #EFF6FF;
+            color: #2563EB;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -95,28 +101,19 @@
             font-weight: 700;
         }
         .airline-name {
-            font-size: 0.88rem;
+            font-size: 0.9rem;
             font-weight: 700;
-            color: #1E293B;
+            color: #0F172A;
         }
         .status-badge {
             padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.72rem;
-            font-weight: 600;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
         }
-        .status-badge--upcoming {
-            background: #EFF6FF;
-            color: #2563EB;
-        }
-        .status-badge--completed {
-            background: #ECFDF5;
-            color: #10B981;
-        }
-        .status-badge--cancelled {
-            background: #FEF2F2;
-            color: #EF4444;
-        }
+        .status-badge--upcoming { background: #EFF6FF; color: #2563EB; }
+        .status-badge--completed { background: #DCFCE7; color: #166534; }
+        .status-badge--cancelled { background: #FEE2E2; color: #991B1B; }
 
         .booking-card__details {
             display: grid;
@@ -135,11 +132,22 @@
             font-size: 0.72rem;
             color: #94A3B8;
             margin-bottom: 2px;
+            font-weight: 600;
         }
         .detail-item span.value {
             font-size: 0.82rem;
+            font-weight: 700;
+            color: #1E293B;
+        }
+
+        .passengers-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: #64748B;
             font-weight: 600;
-            color: #475569;
+            margin-bottom: 1rem;
         }
 
         .booking-card__footer {
@@ -148,22 +156,23 @@
         }
         .btn-card-action {
             flex: 1;
-            padding: 8px;
+            padding: 9px;
             font-family: 'Inter', sans-serif;
-            font-size: 0.82rem;
-            font-weight: 600;
-            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.2s;
             text-align: center;
+            border: none;
         }
         .btn-card-action--primary {
             background: #2563EB;
             color: white;
-            border: none;
         }
         .btn-card-action--primary:hover {
             background: #1D4ED8;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
         }
         .btn-card-action--outline {
             background: white;
@@ -173,19 +182,68 @@
         .btn-card-action--outline:hover {
             background: #EFF6FF;
         }
-        
-        .passengers-row {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.78rem;
-            color: #64748B;
-            margin-bottom: 1rem;
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: all 0.25s ease;
         }
-        .passengers-row svg {
-            width: 14px;
-            height: 14px;
-            color: #94A3B8;
+        .modal-overlay.active {
+            opacity: 1; pointer-events: auto;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%; max-width: 480px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        .modal-header {
+            padding: 1.25rem 1.5rem;
+            background: #0F172A;
+            color: white;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .modal-header h3 { font-size: 1.1rem; font-weight: 700; margin: 0; }
+        .modal-close {
+            background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;
+        }
+        .modal-body {
+            padding: 1.5rem;
+            display: flex; flex-direction: column; gap: 1rem;
+        }
+        .form-group-m label {
+            font-size: 0.82rem; font-weight: 600; color: #475569; margin-bottom: 4px; display: block;
+        }
+        .form-group-m input, .form-group-m select {
+            width: 100%; padding: 0.7rem; border-radius: 10px; border: 1.5px solid #CBD5E1; font-family: inherit; font-size: 0.9rem; outline: none; box-sizing: border-box;
+        }
+        .modal-footer {
+            padding: 1rem 1.5rem; background: #F8FAFC; border-top: 1px solid #E2E8F0; display: flex; justify-content: flex-end; gap: 10px;
+        }
+        
+        /* E-Ticket Styling */
+        .ticket-box {
+            background: linear-gradient(135deg, #1E293B, #0F172A);
+            color: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+        .ticket-row {
+            display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.88rem;
+        }
+        .ticket-barcode {
+            background: white;
+            height: 40px;
+            margin-top: 1rem;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            letter-spacing: 4px; font-family: monospace; font-weight: 800; color: #0F172A;
         }
     </style>
 </head>
@@ -210,13 +268,7 @@
             <li>
                 <a href="{{ url_for('count_places') }}">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                    Count Places
-                </a>
-            </li>
-            <li>
-                <a href="{{ url_for('ai_search') }}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                    Meetings & Search
+                    Explore Places
                 </a>
             </li>
             <li>
@@ -232,27 +284,9 @@
                 </a>
             </li>
             <li>
-                <a href="{{ url_for('count_places') }}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-                    Weather & Detail
-                </a>
-            </li>
-            <li>
-                <a href="{{ url_for('map_page') }}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
-                    Maps
-                </a>
-            </li>
-            <li>
-                <a href="{{ url_for('ai_search') }}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                    Community
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                    Settings
+                <a href="{{ url_for('admin_panel') }}" style="color:#2563EB; font-weight:700;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    Admin Panel
                 </a>
             </li>
         </ul>
@@ -261,46 +295,41 @@
     <!-- ===== Top Bar ===== -->
     <header class="topbar">
         <div class="topbar__icons">
-            <button class="topbar__icon-btn" aria-label="Profile">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </button>
-            <button class="topbar__icon-btn" aria-label="Notifications">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                <span class="badge"></span>
-            </button>
-            <button class="topbar__icon-btn" aria-label="Messages">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-            </button>
-            <button class="topbar__icon-btn" aria-label="Search">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            </button>
-            <button class="topbar__icon-btn" aria-label="Dark Mode">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <button class="topbar__icon-btn" aria-label="Dark Mode" id="darkModeToggle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             </button>
         </div>
         <div class="topbar__avatar">
             <div class="topbar__avatar-img">{{ session.get('user_name', 'U')[0] | upper }}</div>
-            <span class="topbar__user-name">{{ session.get('user_name', 'User') }}</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            <span class="topbar__user-name">{{ session.get('user_name', 'Pranay Kumar') }}</span>
         </div>
-        <a href="{{ url_for('logout') }}" class="topbar__logout" title="Logout">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            Logout
-        </a>
+        <a href="{{ url_for('logout') }}" class="topbar__logout" title="Logout">Logout</a>
     </header>
 
     <!-- ===== Main Content ===== -->
     <main class="main-content">
-        <h2 style="font-size:1.4rem; font-weight:700; color:#1E293B; margin-bottom:1.5rem;">Bookings</h2>
+        <!-- Header -->
+        <div class="bookings-header">
+            <div>
+                <h2 style="font-size:1.4rem; font-weight:800; color:#0F172A; margin:0 0 4px 0;">My Travel Bookings</h2>
+                <p style="color:#64748B; font-size:0.88rem; margin:0;">View, manage, download e-tickets, and update your travel reservations.</p>
+            </div>
+            <button class="btn-card-action btn-card-action--primary" style="padding:0.65rem 1.25rem; font-size:0.9rem;" onclick="openNewBookingModal()">
+                + Book Flight / Hotel
+            </button>
+        </div>
+
+        <!-- Notification Banner -->
+        <div id="bookingAlertMsg" style="display:none; padding:1rem; border-radius:12px; background:#DCFCE7; color:#166534; font-weight:600; font-size:0.9rem; margin-bottom:1.5rem;"></div>
 
         <!-- Bookings Tabs -->
         <div class="bookings-tabs">
-            <button class="bookings-tab" data-tab="hotels">Hotels</button>
-            <button class="bookings-tab active" data-tab="flights">Flights</button>
-            <button class="bookings-tab" data-tab="packages">Packages</button>
+            <button class="bookings-tab active" data-tab="flights">✈️ Flights (6)</button>
+            <button class="bookings-tab" data-tab="hotels">🏨 Hotels & Resorts (3)</button>
+            <button class="bookings-tab" data-tab="packages">📦 Vacation Packages (2)</button>
         </div>
 
-        <!-- Flights Tab Panel -->
+        <!-- ===== TAB 1: FLIGHTS ===== -->
         <div class="tab-panel active" id="flightsPanel">
             <!-- Flight 1 -->
             <div class="booking-card">
@@ -308,32 +337,31 @@
                     <div class="booking-card__header">
                         <div class="airline-brand">
                             <div class="airline-logo">✈️</div>
-                            <span class="airline-name">Upcoming Flight Mumbai</span>
+                            <span class="airline-name">IndiGo 6E-322439 (Mumbai to Goa)</span>
                         </div>
                         <span class="status-badge status-badge--upcoming">Upcoming</span>
                     </div>
                     <div class="booking-card__details">
                         <div class="detail-item">
                             <span class="label">Flight No.</span>
-                            <span class="value">322439</span>
+                            <span class="value">6E-322439</span>
                         </div>
                         <div class="detail-item">
                             <span class="label">Date</span>
-                            <span class="value">December 1, 2021</span>
+                            <span class="value">Dec 15, 2026</span>
                         </div>
                         <div class="detail-item">
                             <span class="label">Time</span>
-                            <span class="value">03:00</span>
+                            <span class="value">03:00 AM</span>
                         </div>
                     </div>
                     <div class="passengers-row">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        <span>2 Passengers</span>
+                        <span>👥 2 Passengers • Seat 14A, 14B</span>
                     </div>
                 </div>
                 <div class="booking-card__footer">
-                    <button class="btn-card-action btn-card-action--primary">Manage</button>
-                    <button class="btn-card-action btn-card-action--outline">Details</button>
+                    <button class="btn-card-action btn-card-action--primary" onclick="openManageModal('6E-322439', 'IndiGo Express (Mumbai -> Goa)', 'Dec 15, 2026', '03:00 AM', '2 Passengers', 'Upcoming')">Manage</button>
+                    <button class="btn-card-action btn-card-action--outline" onclick="openDetailsModal('6E-322439', 'IndiGo Express', 'Dec 15, 2026', '03:00 AM', '2 Passengers', 'VYG98234A', 'Mumbai (BOM) -> Goa (GOI)', '₹8,500')">Details</button>
                 </div>
             </div>
 
@@ -343,32 +371,31 @@
                     <div class="booking-card__header">
                         <div class="airline-brand">
                             <div class="airline-logo">✈️</div>
-                            <span class="airline-name">Airline brading</span>
+                            <span class="airline-name">Air India AI-322436 (Delhi to Jaipur)</span>
                         </div>
                         <span class="status-badge status-badge--completed">Completed</span>
                     </div>
                     <div class="booking-card__details">
                         <div class="detail-item">
                             <span class="label">Flight No.</span>
-                            <span class="value">322436</span>
+                            <span class="value">AI-322436</span>
                         </div>
                         <div class="detail-item">
                             <span class="label">Date</span>
-                            <span class="value">December 1, 2022</span>
+                            <span class="value">Jan 10, 2027</span>
                         </div>
                         <div class="detail-item">
                             <span class="label">Time</span>
-                            <span class="value">08:00</span>
+                            <span class="value">08:00 AM</span>
                         </div>
                     </div>
                     <div class="passengers-row">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        <span>1 Passenger</span>
+                        <span>👥 1 Passenger • Seat 08F</span>
                     </div>
                 </div>
                 <div class="booking-card__footer">
-                    <button class="btn-card-action btn-card-action--primary">Manage</button>
-                    <button class="btn-card-action btn-card-action--outline">Details</button>
+                    <button class="btn-card-action btn-card-action--primary" onclick="openManageModal('AI-322436', 'Air India (Delhi -> Jaipur)', 'Jan 10, 2027', '08:00 AM', '1 Passenger', 'Completed')">Manage</button>
+                    <button class="btn-card-action btn-card-action--outline" onclick="openDetailsModal('AI-322436', 'Air India Express', 'Jan 10, 2027', '08:00 AM', '1 Passenger', 'VYG71239B', 'Delhi (DEL) -> Jaipur (JAI)', '₹6,200')">Details</button>
                 </div>
             </div>
 
@@ -378,32 +405,31 @@
                     <div class="booking-card__header">
                         <div class="airline-brand">
                             <div class="airline-logo">✈️</div>
-                            <span class="airline-name">Airline brading</span>
+                            <span class="airline-name">Vistara UK-322339 (Kochi to Bangalore)</span>
                         </div>
                         <span class="status-badge status-badge--completed">Completed</span>
                     </div>
                     <div class="booking-card__details">
                         <div class="detail-item">
                             <span class="label">Flight No.</span>
-                            <span class="value">322339</span>
+                            <span class="value">UK-322339</span>
                         </div>
                         <div class="detail-item">
                             <span class="label">Date</span>
-                            <span class="value">December 1, 2022</span>
+                            <span class="value">Feb 01, 2027</span>
                         </div>
                         <div class="detail-item">
                             <span class="label">Time</span>
-                            <span class="value">11:00</span>
+                            <span class="value">11:00 AM</span>
                         </div>
                     </div>
                     <div class="passengers-row">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        <span>3 Passengers</span>
+                        <span>👥 3 Passengers • Seat 12C, 12D, 12E</span>
                     </div>
                 </div>
                 <div class="booking-card__footer">
-                    <button class="btn-card-action btn-card-action--primary">Manage</button>
-                    <button class="btn-card-action btn-card-action--outline">Details</button>
+                    <button class="btn-card-action btn-card-action--primary" onclick="openManageModal('UK-322339', 'Vistara Luxury (Kochi -> BLR)', 'Feb 01, 2027', '11:00 AM', '3 Passengers', 'Completed')">Manage</button>
+                    <button class="btn-card-action btn-card-action--outline" onclick="openDetailsModal('UK-322339', 'Vistara Luxury', 'Feb 01, 2027', '11:00 AM', '3 Passengers', 'VYG44521C', 'Kochi (COK) -> Bangalore (BLR)', '₹14,800')">Details</button>
                 </div>
             </div>
 
@@ -413,32 +439,31 @@
                     <div class="booking-card__header">
                         <div class="airline-brand">
                             <div class="airline-logo">✈️</div>
-                            <span class="airline-name">Airline branding</span>
+                            <span class="airline-name">Akasa Air QP-302321 (Delhi to Leh)</span>
                         </div>
                         <span class="status-badge status-badge--completed">Completed</span>
                     </div>
                     <div class="booking-card__details">
                         <div class="detail-item">
                             <span class="label">Flight No.</span>
-                            <span class="value">302321</span>
+                            <span class="value">QP-302321</span>
                         </div>
                         <div class="detail-item">
                             <span class="label">Date</span>
-                            <span class="value">December 1, 2022</span>
+                            <span class="value">May 10, 2027</span>
                         </div>
                         <div class="detail-item">
                             <span class="label">Time</span>
-                            <span class="value">13:00</span>
+                            <span class="value">01:00 PM</span>
                         </div>
                     </div>
                     <div class="passengers-row">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        <span>1 Passenger</span>
+                        <span>👥 1 Passenger • Seat 05A</span>
                     </div>
                 </div>
                 <div class="booking-card__footer">
-                    <button class="btn-card-action btn-card-action--primary">Manage</button>
-                    <button class="btn-card-action btn-card-action--outline">Details</button>
+                    <button class="btn-card-action btn-card-action--primary" onclick="openManageModal('QP-302321', 'Akasa Air (Delhi -> Leh)', 'May 10, 2027', '01:00 PM', '1 Passenger', 'Completed')">Manage</button>
+                    <button class="btn-card-action btn-card-action--outline" onclick="openDetailsModal('QP-302321', 'Akasa Air', 'May 10, 2027', '01:00 PM', '1 Passenger', 'VYG12984D', 'Delhi (DEL) -> Leh (IXL)', '₹9,400')">Details</button>
                 </div>
             </div>
 
@@ -448,32 +473,31 @@
                     <div class="booking-card__header">
                         <div class="airline-brand">
                             <div class="airline-logo">✈️</div>
-                            <span class="airline-name">Airline branding</span>
+                            <span class="airline-name">SpiceJet SG-302323 (Kolkata to Varanasi)</span>
                         </div>
                         <span class="status-badge status-badge--completed">Completed</span>
                     </div>
                     <div class="booking-card__details">
                         <div class="detail-item">
                             <span class="label">Flight No.</span>
-                            <span class="value">302323</span>
+                            <span class="value">SG-302323</span>
                         </div>
                         <div class="detail-item">
                             <span class="label">Date</span>
-                            <span class="value">December 11, 2022</span>
+                            <span class="value">Nov 10, 2026</span>
                         </div>
                         <div class="detail-item">
                             <span class="label">Time</span>
-                            <span class="value">17:00</span>
+                            <span class="value">05:00 PM</span>
                         </div>
                     </div>
                     <div class="passengers-row">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        <span>2 Passengers</span>
+                        <span>👥 2 Passengers • Seat 18C, 18D</span>
                     </div>
                 </div>
                 <div class="booking-card__footer">
-                    <button class="btn-card-action btn-card-action--primary">Manage</button>
-                    <button class="btn-card-action btn-card-action--outline">Details</button>
+                    <button class="btn-card-action btn-card-action--primary" onclick="openManageModal('SG-302323', 'SpiceJet (Kolkata -> Varanasi)', 'Nov 10, 2026', '05:00 PM', '2 Passengers', 'Completed')">Manage</button>
+                    <button class="btn-card-action btn-card-action--outline" onclick="openDetailsModal('SG-302323', 'SpiceJet Express', 'Nov 10, 2026', '05:00 PM', '2 Passengers', 'VYG55672E', 'Kolkata (CCU) -> Varanasi (VNS)', '₹7,100')">Details</button>
                 </div>
             </div>
 
@@ -483,142 +507,36 @@
                     <div class="booking-card__header">
                         <div class="airline-brand">
                             <div class="airline-logo">✈️</div>
-                            <span class="airline-name">Airline branding</span>
+                            <span class="airline-name">Air India AI-32330 (Delhi to Amritsar)</span>
                         </div>
                         <span class="status-badge status-badge--completed">Completed</span>
                     </div>
                     <div class="booking-card__details">
                         <div class="detail-item">
                             <span class="label">Flight No.</span>
-                            <span class="value">32330</span>
+                            <span class="value">AI-32330</span>
                         </div>
                         <div class="detail-item">
                             <span class="label">Date</span>
-                            <span class="value">October 1, 2022</span>
+                            <span class="value">Jan 20, 2027</span>
                         </div>
                         <div class="detail-item">
                             <span class="label">Time</span>
-                            <span class="value">13:00</span>
+                            <span class="value">01:00 PM</span>
                         </div>
                     </div>
                     <div class="passengers-row">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        <span>4 Passengers</span>
+                        <span>👥 4 Passengers • Seats 20A-20D</span>
                     </div>
                 </div>
                 <div class="booking-card__footer">
-                    <button class="btn-card-action btn-card-action--primary">Manage</button>
-                    <button class="btn-card-action btn-card-action--outline">Details</button>
-                </div>
-            </div>
-
-            <!-- Flight 7 -->
-            <div class="booking-card">
-                <div>
-                    <div class="booking-card__header">
-                        <div class="airline-brand">
-                            <div class="airline-logo">✈️</div>
-                            <span class="airline-name">Airline branding</span>
-                        </div>
-                        <span class="status-badge status-badge--cancelled">Cancelled</span>
-                    </div>
-                    <div class="booking-card__details">
-                        <div class="detail-item">
-                            <span class="label">Flight No.</span>
-                            <span class="value">32330</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Date</span>
-                            <span class="value">August 1, 2022</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Time</span>
-                            <span class="value">13:00</span>
-                        </div>
-                    </div>
-                    <div class="passengers-row">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        <span>2 Passengers</span>
-                    </div>
-                </div>
-                <div class="booking-card__footer">
-                    <button class="btn-card-action btn-card-action--primary" style="opacity:0.5; cursor:not-allowed;" disabled>Manage</button>
-                    <button class="btn-card-action btn-card-action--outline">Details</button>
-                </div>
-            </div>
-
-            <!-- Flight 8 -->
-            <div class="booking-card">
-                <div>
-                    <div class="booking-card__header">
-                        <div class="airline-brand">
-                            <div class="airline-logo">✈️</div>
-                            <span class="airline-name">Airline branding</span>
-                        </div>
-                        <span class="status-badge status-badge--cancelled">Cancelled</span>
-                    </div>
-                    <div class="booking-card__details">
-                        <div class="detail-item">
-                            <span class="label">Flight No.</span>
-                            <span class="value">34253</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Date</span>
-                            <span class="value">Clone</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Time</span>
-                            <span class="value">17:00</span>
-                        </div>
-                    </div>
-                    <div class="passengers-row">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        <span>10 Passengers</span>
-                    </div>
-                </div>
-                <div class="booking-card__footer">
-                    <button class="btn-card-action btn-card-action--primary" style="opacity:0.5; cursor:not-allowed;" disabled>Manage</button>
-                    <button class="btn-card-action btn-card-action--outline">Details</button>
-                </div>
-            </div>
-
-            <!-- Flight 9 -->
-            <div class="booking-card">
-                <div>
-                    <div class="booking-card__header">
-                        <div class="airline-brand">
-                            <div class="airline-logo">✈️</div>
-                            <span class="airline-name">Airline branding</span>
-                        </div>
-                        <span class="status-badge status-badge--cancelled">Cancelled</span>
-                    </div>
-                    <div class="booking-card__details">
-                        <div class="detail-item">
-                            <span class="label">Flight No.</span>
-                            <span class="value">342501</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Date</span>
-                            <span class="value">Juny 10, 2022</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Time</span>
-                            <span class="value">18:00</span>
-                        </div>
-                    </div>
-                    <div class="passengers-row">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        <span>10 Passengers</span>
-                    </div>
-                </div>
-                <div class="booking-card__footer">
-                    <button class="btn-card-action btn-card-action--primary">Manage</button>
-                    <button class="btn-card-action btn-card-action--outline">Details</button>
+                    <button class="btn-card-action btn-card-action--primary" onclick="openManageModal('AI-32330', 'Air India (Delhi -> Amritsar)', 'Jan 20, 2027', '01:00 PM', '4 Passengers', 'Completed')">Manage</button>
+                    <button class="btn-card-action btn-card-action--outline" onclick="openDetailsModal('AI-32330', 'Air India Heritage', 'Jan 20, 2027', '01:00 PM', '4 Passengers', 'VYG90123F', 'Delhi (DEL) -> Amritsar (ATQ)', '₹18,000')">Details</button>
                 </div>
             </div>
         </div>
 
-        <!-- Hotels Tab Panel -->
+        <!-- ===== TAB 2: HOTELS ===== -->
         <div class="tab-panel" id="hotelsPanel">
             <!-- Hotel 1 -->
             <div class="booking-card">
@@ -626,119 +544,255 @@
                     <div class="booking-card__header">
                         <div class="airline-brand">
                             <div class="airline-logo">🏨</div>
-                            <span class="airline-name">Grand Plaza Hotel</span>
+                            <span class="airline-name">Taj Exotica Resort Goa</span>
                         </div>
-                        <span class="status-badge status-badge--upcoming">Upcoming</span>
+                        <span class="status-badge status-badge--upcoming">Confirmed</span>
                     </div>
                     <div class="booking-card__details">
-                        <div class="detail-item">
-                            <span class="label">Room No.</span>
-                            <span class="value">Suite 404</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Check In</span>
-                            <span class="value">Oct 12, 2024</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Nights</span>
-                            <span class="value">5 Nights</span>
-                        </div>
+                        <div class="detail-item"><span class="label">Nights</span><span class="value">5 Nights</span></div>
+                        <div class="detail-item"><span class="label">Check In</span><span class="value">Dec 15, 2026</span></div>
+                        <div class="detail-item"><span class="label">Room</span><span class="value">Sea View Villa</span></div>
                     </div>
+                    <div class="passengers-row"><span>👥 2 Guests • Breakfast Included</span></div>
                 </div>
                 <div class="booking-card__footer">
-                    <button class="btn-card-action btn-card-action--primary">Manage</button>
-                    <button class="btn-card-action btn-card-action--outline">Details</button>
+                    <button class="btn-card-action btn-card-action--primary" onclick="openManageModal('HTL-GOA1', 'Taj Exotica Goa', 'Dec 15, 2026', '12:00 PM Checkin', '2 Guests', 'Confirmed')">Manage</button>
+                    <button class="btn-card-action btn-card-action--outline" onclick="openDetailsModal('HTL-GOA1', 'Taj Exotica Resort Goa', 'Dec 15, 2026', '12:00 PM', '2 Guests', 'HTL9921', 'Benaulim Beach, South Goa', '₹32,000')">Details</button>
                 </div>
             </div>
+
             <!-- Hotel 2 -->
             <div class="booking-card">
                 <div>
                     <div class="booking-card__header">
                         <div class="airline-brand">
                             <div class="airline-logo">🏨</div>
-                            <span class="airline-name">Beachfront Resort</span>
+                            <span class="airline-name">Rambagh Palace Jaipur</span>
                         </div>
                         <span class="status-badge status-badge--completed">Completed</span>
                     </div>
                     <div class="booking-card__details">
-                        <div class="detail-item">
-                            <span class="label">Room No.</span>
-                            <span class="value">Villa 12</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Check In</span>
-                            <span class="value">Jul 20, 2023</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Nights</span>
-                            <span class="value">3 Nights</span>
-                        </div>
+                        <div class="detail-item"><span class="label">Nights</span><span class="value">4 Nights</span></div>
+                        <div class="detail-item"><span class="label">Check In</span><span class="value">Jan 10, 2027</span></div>
+                        <div class="detail-item"><span class="label">Room</span><span class="value">Royal Suite</span></div>
                     </div>
+                    <div class="passengers-row"><span>👥 2 Guests • Royal Dining Included</span></div>
                 </div>
                 <div class="booking-card__footer">
-                    <button class="btn-card-action btn-card-action--primary">Manage</button>
-                    <button class="btn-card-action btn-card-action--outline">Details</button>
+                    <button class="btn-card-action btn-card-action--primary" onclick="openManageModal('HTL-JPR2', 'Rambagh Palace Jaipur', 'Jan 10, 2027', '02:00 PM Checkin', '2 Guests', 'Completed')">Manage</button>
+                    <button class="btn-card-action btn-card-action--outline" onclick="openDetailsModal('HTL-JPR2', 'Rambagh Palace Jaipur', 'Jan 10, 2027', '02:00 PM', '2 Guests', 'HTL8834', 'Bhawani Singh Road, Jaipur', '₹26,000')">Details</button>
                 </div>
             </div>
         </div>
 
-        <!-- Packages Tab Panel -->
+        <!-- ===== TAB 3: PACKAGES ===== -->
         <div class="tab-panel" id="packagesPanel">
-            <!-- Package 1 -->
             <div class="booking-card">
                 <div>
                     <div class="booking-card__header">
                         <div class="airline-brand">
                             <div class="airline-logo">📦</div>
-                            <span class="airline-name">European Explorer</span>
+                            <span class="airline-name">Golden Triangle Tour Package</span>
                         </div>
-                        <span class="status-badge status-badge--upcoming">Upcoming</span>
+                        <span class="status-badge status-badge--upcoming">Confirmed</span>
                     </div>
                     <div class="booking-card__details">
-                        <div class="detail-item">
-                            <span class="label">Code</span>
-                            <span class="value">PKG-EURO</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Start</span>
-                            <span class="value">May 15, 2025</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="label">Duration</span>
-                            <span class="value">10 Days</span>
-                        </div>
+                        <div class="detail-item"><span class="label">Route</span><span class="value">Delhi-Agra-Jaipur</span></div>
+                        <div class="detail-item"><span class="label">Start Date</span><span class="value">Dec 01, 2026</span></div>
+                        <div class="detail-item"><span class="label">Duration</span><span class="value">5 Days</span></div>
                     </div>
+                    <div class="passengers-row"><span>🚗 Private AC SUV + Guide Included</span></div>
                 </div>
                 <div class="booking-card__footer">
-                    <button class="btn-card-action btn-card-action--primary">Manage</button>
-                    <button class="btn-card-action btn-card-action--outline">Details</button>
+                    <button class="btn-card-action btn-card-action--primary" onclick="openManageModal('PKG-GT01', 'Golden Triangle Tour', 'Dec 01, 2026', '06:00 AM Pickup', 'Family Package', 'Confirmed')">Manage</button>
+                    <button class="btn-card-action btn-card-action--outline" onclick="openDetailsModal('PKG-GT01', 'Golden Triangle India Package', 'Dec 01, 2026', '06:00 AM', '4 Members', 'PKG9911', 'Delhi -> Agra Taj -> Jaipur', '₹25,000')">Details</button>
                 </div>
             </div>
         </div>
     </main>
 
+    <!-- ===== MANAGE BOOKING MODAL ===== -->
+    <div class="modal-overlay" id="manageModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="manageModalTitle">⚙️ Manage Reservation</h3>
+                <button class="modal-close" onclick="closeModal('manageModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="manageModalSubtitle" style="font-size:0.88rem; color:#64748B; margin:0;"></p>
+                <div class="form-group-m">
+                    <label>Seat / Room Preference</label>
+                    <select id="seatPref">
+                        <option value="Window Seat 14A">🪟 Window Seat</option>
+                        <option value="Aisle Seat 14B">🚶 Aisle Seat</option>
+                        <option value="Front Row Extra Legroom">✨ Extra Legroom Seat (+₹500)</option>
+                    </select>
+                </div>
+                <div class="form-group-m">
+                    <label>Meal & In-flight Service</label>
+                    <select id="mealPref">
+                        <option value="Vegetarian North Indian Thali">🥗 Veg North Indian Thali</option>
+                        <option value="Non-Veg Butter Chicken Meal">🍗 Non-Veg Butter Chicken</option>
+                        <option value="Jain Special Meal">🌱 Jain Special Meal</option>
+                    </select>
+                </div>
+                <div class="form-group-m">
+                    <label>Reservation Status</label>
+                    <select id="bookingStatusSelect">
+                        <option value="Confirmed">✅ Confirmed & Active</option>
+                        <option value="Rescheduled">🔄 Reschedule Date</option>
+                        <option value="Cancel Booking">❌ Request Cancellation</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-card-action btn-card-action--outline" style="max-width:100px;" onclick="closeModal('manageModal')">Cancel</button>
+                <button class="btn-card-action btn-card-action--primary" onclick="saveManageBooking()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== E-TICKET DETAILS MODAL ===== -->
+    <div class="modal-overlay" id="detailsModal">
+        <div class="modal-content" style="max-width: 520px;">
+            <div class="modal-header">
+                <h3>🎫 E-Ticket & Reservation Details</h3>
+                <button class="modal-close" onclick="closeModal('detailsModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="ticket-box">
+                    <div class="ticket-row">
+                        <div><strong style="color:#94A3B8;">PASSENGER</strong><br><span id="tPassName" style="font-size:1.1rem; font-weight:800;">Pranay Kumar</span></div>
+                        <div><strong style="color:#94A3B8;">PNR CODE</strong><br><span id="tPnr" style="font-size:1.1rem; font-weight:800; color:#60A5FA;">VYG98234A</span></div>
+                    </div>
+                    <div class="ticket-row">
+                        <div><strong style="color:#94A3B8;">CARRIER / HOTEL</strong><br><span id="tAirline" style="font-weight:700;">IndiGo Airlines</span></div>
+                        <div><strong style="color:#94A3B8;">CODE</strong><br><span id="tFlightNo" style="font-weight:700;">6E-322439</span></div>
+                    </div>
+                    <div class="ticket-row">
+                        <div><strong style="color:#94A3B8;">ROUTE / LOCATION</strong><br><span id="tRoute" style="font-weight:700;">Mumbai (BOM) -> Goa (GOI)</span></div>
+                    </div>
+                    <div class="ticket-row">
+                        <div><strong style="color:#94A3B8;">DATE & TIME</strong><br><span id="tDateTime" style="font-weight:700;">Dec 15, 2026 • 03:00 AM</span></div>
+                        <div><strong style="color:#94A3B8;">AMOUNT PAID</strong><br><span id="tPrice" style="font-size:1.1rem; font-weight:800; color:#4ADE80;">₹8,500</span></div>
+                    </div>
+                    <div class="ticket-barcode">
+                        ||||| ||| ||||||| |||| |||||||||||
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-card-action btn-card-action--outline" onclick="closeModal('detailsModal')">Close</button>
+                <button class="btn-card-action btn-card-action--primary" onclick="downloadETicket()">📥 Download PDF Ticket</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== NEW BOOKING MODAL ===== -->
+    <div class="modal-overlay" id="newBookingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✈️ Book New Flight or Hotel</h3>
+                <button class="modal-close" onclick="closeModal('newBookingModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group-m">
+                    <label>Booking Type</label>
+                    <select id="newBookType">
+                        <option value="Flight">✈️ Flight Reservation</option>
+                        <option value="Hotel">🏨 Luxury Hotel Stay</option>
+                        <option value="Package">📦 Tour Package</option>
+                    </select>
+                </div>
+                <div class="form-group-m">
+                    <label>Destination / Carrier</label>
+                    <input type="text" id="newBookDest" placeholder="e.g. IndiGo Delhi to Goa, Taj Exotica" value="IndiGo Flight (Delhi -> Goa)">
+                </div>
+                <div class="form-group-m">
+                    <label>Travel Date</label>
+                    <input type="text" id="newBookDate" value="December 20, 2026">
+                </div>
+                <div class="form-group-m">
+                    <label>Amount (₹ INR)</label>
+                    <input type="number" id="newBookAmt" value="7500">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-card-action btn-card-action--outline" onclick="closeModal('newBookingModal')">Cancel</button>
+                <button class="btn-card-action btn-card-action--primary" onclick="confirmNewBooking()">Confirm & Book</button>
+            </div>
+        </div>
+    </div>
+
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <script>
-        // Simple Tab Switching logic
+        // Tab switching logic
         const tabs = document.querySelectorAll('.bookings-tab');
         const panels = document.querySelectorAll('.tab-panel');
 
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 const target = tab.getAttribute('data-tab');
-
                 tabs.forEach(t => t.classList.remove('active'));
                 panels.forEach(p => p.classList.remove('active'));
 
                 tab.classList.add('active');
-                
-                // Map the tab IDs to corresponding panel IDs
                 const activePanel = document.getElementById(target + 'Panel');
-                if (activePanel) {
-                    activePanel.classList.add('active');
-                }
+                if (activePanel) activePanel.classList.add('active');
             });
         });
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // Manage Modal Handler
+        function openManageModal(flightNo, airline, date, time, passengers, status) {
+            document.getElementById('manageModalTitle').textContent = `⚙️ Manage ${flightNo}`;
+            document.getElementById('manageModalSubtitle').textContent = `${airline} • ${date} ${time} (${passengers})`;
+            document.getElementById('manageModal').classList.add('active');
+        }
+
+        function saveManageBooking() {
+            closeModal('manageModal');
+            const alertBox = document.getElementById('bookingAlertMsg');
+            alertBox.style.display = 'block';
+            alertBox.textContent = '✅ Reservation updated successfully! Your seat and meal preferences have been confirmed.';
+            setTimeout(() => alertBox.style.display = 'none', 4000);
+        }
+
+        // Details Modal Handler
+        function openDetailsModal(flightNo, airline, date, time, passengers, pnr, route, price) {
+            document.getElementById('tFlightNo').textContent = flightNo;
+            document.getElementById('tAirline').textContent = airline;
+            document.getElementById('tDateTime').textContent = `${date} • ${time}`;
+            document.getElementById('tPnr').textContent = pnr;
+            document.getElementById('tRoute').textContent = route;
+            document.getElementById('tPrice').textContent = price;
+            document.getElementById('detailsModal').classList.add('active');
+        }
+
+        function downloadETicket() {
+            closeModal('detailsModal');
+            const alertBox = document.getElementById('bookingAlertMsg');
+            alertBox.style.display = 'block';
+            alertBox.textContent = '📥 E-Ticket PDF downloaded successfully to your downloads folder!';
+            setTimeout(() => alertBox.style.display = 'none', 4000);
+        }
+
+        // New Booking Handler
+        function openNewBookingModal() {
+            document.getElementById('newBookingModal').classList.add('active');
+        }
+
+        function confirmNewBooking() {
+            const dest = document.getElementById('newBookDest').value;
+            closeModal('newBookingModal');
+            const alertBox = document.getElementById('bookingAlertMsg');
+            alertBox.style.display = 'block';
+            alertBox.textContent = `🎉 New Booking confirmed for "${dest}"! Your e-ticket has been generated.`;
+            setTimeout(() => alertBox.style.display = 'none', 4000);
+        }
     </script>
 </body>
 </html>
