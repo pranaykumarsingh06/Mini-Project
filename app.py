@@ -20,46 +20,54 @@ SUPABASE_KEY = "sb_publishable_LkOufWc-xLNelYAIIsbXZg_zQNNERMG"
 def sync_to_supabase(event_type, payload):
     """
     Syncs user logins, registrations, trips, and bookings directly to Supabase backend.
+    Saves data in both Supabase Auth User Metadata and Supabase PostgREST tables.
     """
     try:
         headers = {
             'apikey': SUPABASE_KEY,
             'Authorization': f'Bearer {SUPABASE_KEY}',
             'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
+            'Prefer': 'return=representation'
         }
 
+        email = payload.get('email', 'traveler@voyage.com')
+        if not email or '@' not in email:
+            clean_name = (payload.get('full_name') or 'traveler').replace(' ', '').lower()
+            email = f"{clean_name}@voyage.com"
+
         if event_type in ('user_register', 'user_login'):
-            # 1. Sync to Supabase Auth API
+            # 1. Sync User to Supabase Auth API
             auth_url = f"{SUPABASE_URL}/auth/v1/signup"
             auth_data = {
-                'email': payload.get('email'),
+                'email': email,
                 'password': payload.get('password', 'VoyagePass2026!'),
-                'user_metadata': {
-                    'full_name': payload.get('full_name'),
+                'data': {
+                    'full_name': payload.get('full_name', 'Traveler'),
                     'country': payload.get('country', 'India'),
-                    'phone': payload.get('phone', '')
+                    'phone': payload.get('phone', ''),
+                    'event_type': event_type
                 }
             }
             try:
                 req = urllib.request.Request(auth_url, data=json.dumps(auth_data).encode('utf-8'), headers=headers)
-                urllib.request.urlopen(req, timeout=3)
-            except Exception:
-                pass
+                res = urllib.request.urlopen(req, timeout=4)
+                print(f"[Supabase Auth Sync OK] {res.status}")
+            except Exception as ae:
+                print(f"[Supabase Auth Sync Note] {ae}")
 
-            # 2. Sync to Supabase Database Table 'users'
+            # 2. Sync User to Supabase Database Table 'users'
             db_url = f"{SUPABASE_URL}/rest/v1/users"
             user_data = [{
-                'full_name': payload.get('full_name'),
-                'email': payload.get('email'),
+                'full_name': payload.get('full_name', 'Traveler'),
+                'email': email,
                 'country': payload.get('country', 'India'),
                 'phone': payload.get('phone', '')
             }]
             try:
                 req_db = urllib.request.Request(db_url, data=json.dumps(user_data).encode('utf-8'), headers=headers)
-                urllib.request.urlopen(req_db, timeout=3)
-            except Exception:
-                pass
+                urllib.request.urlopen(req_db, timeout=4)
+            except Exception as de:
+                print(f"[Supabase DB Table Note] {de}")
 
         elif event_type == 'trip_add':
             db_url = f"{SUPABASE_URL}/rest/v1/trips"
@@ -73,9 +81,10 @@ def sync_to_supabase(event_type, payload):
             }]
             try:
                 req = urllib.request.Request(db_url, data=json.dumps(trip_data).encode('utf-8'), headers=headers)
-                urllib.request.urlopen(req, timeout=3)
-            except Exception:
-                pass
+                res = urllib.request.urlopen(req, timeout=4)
+                print(f"[Supabase Trip Sync OK] {res.status}")
+            except Exception as de:
+                print(f"[Supabase Trip Sync Note] {de}")
 
         elif event_type == 'booking_add':
             db_url = f"{SUPABASE_URL}/rest/v1/bookings"
@@ -88,9 +97,10 @@ def sync_to_supabase(event_type, payload):
             }]
             try:
                 req = urllib.request.Request(db_url, data=json.dumps(booking_data).encode('utf-8'), headers=headers)
-                urllib.request.urlopen(req, timeout=3)
-            except Exception:
-                pass
+                res = urllib.request.urlopen(req, timeout=4)
+                print(f"[Supabase Booking Sync OK] {res.status}")
+            except Exception as de:
+                print(f"[Supabase Booking Sync Note] {de}")
 
     except Exception as e:
         print(f"[Supabase Sync Non-Blocking Notice] {e}")

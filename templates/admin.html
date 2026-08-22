@@ -317,15 +317,34 @@
             {% endif %}
         {% endwith %}
 
-        <!-- Friendly Welcome Banner -->
+        <!-- Welcome Banner -->
         <div class="welcome-card">
             <div>
-                <h2>Hello, Pranay! 👋</h2>
-                <p>Manage your registered users, travel itineraries, and customer bookings seamlessly.</p>
+                <h2>Admin Control Center ⚡</h2>
+                <p>Manage all Voyage registered users, planned travel itineraries, and hotel & flight bookings.</p>
             </div>
-            <button class="btn btn-primary" onclick="openModal('addTripModal')">
-                + New Trip Record
-            </button>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-primary" onclick="openModal('addUserModal')">
+                    + Add New User
+                </button>
+                <button class="btn btn-primary" style="background:#10B981;" onclick="openModal('addTripModal')">
+                    + Add Trip
+                </button>
+            </div>
+        </div>
+
+        <!-- Supabase Status Banner -->
+        <div style="background: linear-gradient(135deg, #065F46, #047857); color: white; border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(4, 120, 87, 0.2);">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 42px; height: 42px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">⚡</div>
+                <div>
+                    <h3 style="margin: 0; font-size: 1.05rem; font-weight: 700;">Supabase Backend Connected & Sync Active</h3>
+                    <p style="margin: 3px 0 0 0; font-size: 0.85rem; opacity: 0.9;">Project ID: <strong style="background:rgba(0,0,0,0.2); padding:2px 8px; border-radius:6px;">awdvvaxglwbejfxnvngu</strong> • Auto-syncing users, trips & bookings.</p>
+                </div>
+            </div>
+            <a href="https://supabase.com/dashboard/project/awdvvaxglwbejfxnvngu" target="_blank" class="btn" style="background: white; color: #047857; font-weight: 700; font-size: 0.82rem; padding: 8px 14px; border-radius: 10px; text-decoration:none;">
+                Open Supabase Dashboard ↗
+            </a>
         </div>
 
         <!-- 3 Simple Stats -->
